@@ -1,0 +1,60 @@
+----------------------------------------------------------------------------------------------------------------------------
+MyEclipse: deployment START exploded project: metaadmin server: websphere7Server#AppSrv01 time: Mon Jun 24 16:57:26 EDT 2013
+----------------------------------------------------------------------------------------------------------------------------
+WASX7357I: By request, this scripting client is not connected to any server process. Certain configuration and application operations will be available in local mode.
+WASX7303I: The following options are passed to the scripting environment and are available as arguments that are stored in the argv variable: "[C:\\IBM\\WebSphere\\AppServer\\profiles\\AppSrv01\\installableApps\\metaadmin.war, NAD2LCDV0000PWYNode01Cell, NAD2LCDV0000PWYNode01, server1, /metaadmin, metaadmin, {{"metaadmin.war" "metaadmin.war,WEB-INF/web.xml" default_host}}, {{.* .* AppDeploymentOption.Yes 1}}, metaadmin.war, false]"
+-contextroot "/metaadmin" -server "server1" -nopreCompileJSPs -distributeApp -useMetaDataFromBinary -nodeployejb -appname "metaadmin" -createMBeansForResources -reloadEnabled -reloadInterval 1 -deployws -validateinstall off -noprocessEmbeddedConfig  -filepermission .*.dll=755#.*.so=755#.*.a=755#.*.sl=755  -buildVersion Unknown  -noallowDispatchRemoteInclude  -noallowServiceRemoteInclude  -MapWebModToVH {{"metaadmin.war" "metaadmin.war,WEB-INF/web.xml" default_host}} -JSPReloadForWebMod {{.* .* AppDeploymentOption.Yes 1}}
+C:\IBM\WebSphere\AppServer\profiles\AppSrv01\installableApps\metaadmin.war
+NAD2LCDV0000PWYNode01Cell
+NAD2LCDV0000PWYNode01
+server1
+/metaadmin
+metaadmin
+{"metaadmin.war" "metaadmin.war,WEB-INF/web.xml" default_host}
+{.* .* AppDeploymentOption.Yes 1}
+metaadmin.war
+false
+WASX7327I: Contents of was.policy file:
+ //
+// Template policy file for enterprise application.
+// Extra permissions can be added if required by the enterprise application.
+//
+// NOTE: Syntax errors in the policy files will cause the enterprise application FAIL to start.
+//       Extreme care should be taken when editing these policy files. It is advised to use
+//       the policytool provided by the JDK for editing the policy files
+//       (WAS_HOME/java/jre/bin/policytool). 
+//
+
+grant codeBase "file:${application}" {
+};
+
+grant codeBase "file:${jars}" {
+};
+
+grant codeBase "file:${connectorComponent}" {
+};
+
+grant codeBase "file:${webComponent}" {
+};
+
+grant codeBase "file:${ejbComponent}" {
+};
+
+
+ADMA5016I: Installation of metaadmin started.
+ADMA5058I: Application and module versions are validated with versions of deployment targets.
+WSWS0041I: Web services deploy task completed successfully.
+ADMA5005I: The application metaadmin is configured in the WebSphere Application Server repository.
+ADMA5053I: The library references for the installed optional package are created.
+ADMA5005I: The application metaadmin is configured in the WebSphere Application Server repository.
+ADMA5001I: The application binaries are saved in C:\IBM\WebSphere\AppServer\profiles\AppSrv01\wstemp\Script13f77fa1e93\workspace\cells\NAD2LCDV0000PWYNode01Cell\applications\metaadmin.ear\metaadmin.ear
+ADMA5005I: The application metaadmin is configured in the WebSphere Application Server repository.
+SECJ0400I: Successfully updated the application metaadmin with the appContextIDForSecurity information.
+ADMA5005I: The application metaadmin is configured in the WebSphere Application Server repository.
+CWSAD0040I: The application metaadmin is configured in the Application Server repository.
+ADMA5113I: Activation plan created successfully.
+ADMA5011I: The cleanup of the temp directory for application metaadmin is complete.
+ADMA5013I: Application metaadmin installed successfully.
+-----------------------------------------------------------------------------------------------------------------
+MyEclipse: deployment END project: metaadmin server: websphere7Server#AppSrv01 time: Mon Jun 24 16:57:51 EDT 2013
+-----------------------------------------------------------------------------------------------------------------
