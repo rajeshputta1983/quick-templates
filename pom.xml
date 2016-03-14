@@ -33,6 +33,6 @@
   </dependencies>
   
   <build>
-    <finalName>Rest-Simulator</finalName>
+    <finalName>quick-templates</finalName>
   </build>
 </project>
