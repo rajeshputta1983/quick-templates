@@ -21,7 +21,7 @@ limitations under the License.
     <payload rootDirectory="C:\payloads"/>
     
     <binding id="testPayload">
-        <rule expr="#status and #company.code=='abc' and #myname=='rajesh'" template="test\sample-payload-template.json"></rule>
+        <rule expr="#status and #company.code=='xyz' and #myname=='rajesh'" template="test\sample-payload-template.json"></rule>
         <rule expr="#method=='POST'" template="test\sample-payload-template.json"></rule>
     </binding>
  

@@ -1,0 +1,48 @@
+#if(#xml.inventory.book[0]@year==2000 && #dummy==null && #status && #json.person.name~='Rajesh' && #myname=='rajesh' && #company.code=='xyz' || #company.code=='abc')
+
+Hello This is sample template text - Para1
+	
+	#switch(#company.name)
+		#case(abc): #{#xml.inventory.book[0].title}
+					#{#xml.inventory.book[1].title}
+					#{#xml.inventory.book[0]@year}/#{#xml.inventory.book[2]@year}
+
+					#for(book in #xml.inventory.book)
+						Author #{#book$index} - #{#book.author@alias}
+					#end
+		#end
+		#case(xyz): #{#json.person.address[1].type}
+					#{#json.person.address[1].location}
+					#{#json.person.address[0].type}
+					#{#json.person.address[0].location}
+		#end
+		#default:
+				default case got executed
+		#end		
+	#end
+	
+	
+Para 2
+	
+#if(#company.code=='xyz' && #data=='false' || #data=='123')  
+
+Para 3
+	
+	#for(addr1 in #json.person.address)
+		hello #{#addr1.type} - #{#addr1.location} !! 
+		#{#addr1$index}
+		#for(addr2 in #employee.address)
+			#{#addr2.type}/#{#addr2.location}
+			#{#addr2$index}
+		#end
+	#end
+Para 4
+	
+	#if(#data<='123')
+		Para 5
+	#end	
+	Para 6
+	#end
+Para 7
+#end
+Para 8

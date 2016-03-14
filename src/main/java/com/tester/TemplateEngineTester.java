@@ -34,7 +34,8 @@ public class TemplateEngineTester {
 		EngineContext context=new EngineContext();
 		
 		Map<String, String> companyData=new HashMap<String, String>();
-		companyData.put("code", "abc");
+		companyData.put("code", "xyz");
+		companyData.put("name", "mycompany");
 		
 		context.set("company", companyData);
 		context.set("data", "123");

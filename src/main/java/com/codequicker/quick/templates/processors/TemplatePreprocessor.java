@@ -37,7 +37,7 @@ public class TemplatePreprocessor {
 	
 	private Pattern forExprPattern=Pattern.compile("[^\\s]+\\s+(in)\\s+([^\\s]+(\\.)?)+", Pattern.CASE_INSENSITIVE);
 	
-	private Pattern keywordPattern=Pattern.compile("(#for\\s*\\()|(#if\\s*\\()|(#end)|(#\\{)");
+	private Pattern keywordPattern=Pattern.compile("(#for\\s*\\()|(#if\\s*\\()|(#end)|(#\\{)|(#switch\\s*\\()|(#case\\s*\\()|(#default\\s*)");
 	
 	private int lastIndex=0;
 	
@@ -109,6 +109,12 @@ public class TemplatePreprocessor {
 			node.setType(NodeType.FOR);
 		else if(keyword.startsWith("#if"))
 			node.setType(NodeType.IF);
+		else if(keyword.startsWith("#switch"))
+			node.setType(NodeType.SWITCH);
+		else if(keyword.startsWith("#case"))
+			node.setType(NodeType.CASE);
+		else if(keyword.startsWith("#default"))
+				node.setType(NodeType.DEFAULT);	
 		else if(keyword.startsWith("#{"))
 			node.setType(NodeType.EXPR);
 		else if(keyword.startsWith("#end"))
@@ -126,13 +132,61 @@ public class TemplatePreprocessor {
 				nodeStack.push(current);
 		}
 		
-		if(keyword.startsWith("#if"))
+		if(keyword.startsWith("#if") || keyword.startsWith("#switch"))
 		{
 			node.setStartIndex(startIndex);
 			
-			bodyIndex=content.indexOf(")", startIndex)+1;
+			bodyIndex=lookAhead(')', content, startIndex, false)+1;
 			
 			node.setExprNodes(exprProcessor.preprocess(content.substring(endIndex, bodyIndex-1).trim()));
+
+			nodeStack.push(node);
+		}
+		else if(keyword.startsWith("#case"))
+		{
+			node.setStartIndex(startIndex);
+			
+			bodyIndex=lookAhead(')', content, startIndex, false)+1;
+			
+			node.setContent(content.substring(endIndex, bodyIndex-1).trim());
+			
+			bodyIndex=lookAhead(':',content, bodyIndex, true)+1;			
+			
+			if(!nodeStack.empty())
+			{
+				Node parent=nodeStack.peek();
+				
+				if(parent.getType()!=NodeType.SWITCH)
+				{
+					throw new PreprocessorException("#case encountered without #switch....");
+				}
+			}
+			else
+			{
+				throw new PreprocessorException("#case encountered without #switch....");
+			}
+
+			nodeStack.push(node);
+		}
+		else if(keyword.startsWith("#default"))
+		{
+			node.setStartIndex(startIndex);
+			
+			bodyIndex=lookAhead(':',content, endIndex, true)+1;
+			
+			if(!nodeStack.empty())
+			{
+				Node parent=nodeStack.peek();
+				
+				if(parent.getType()!=NodeType.SWITCH)
+				{
+					throw new PreprocessorException("#default encountered without #switch....");
+				}
+			}
+			else
+			{
+				throw new PreprocessorException("#default encountered without #switch....");
+			}
 
 			nodeStack.push(node);
 		}
@@ -140,7 +194,7 @@ public class TemplatePreprocessor {
 		{
 			node.setStartIndex(startIndex);
 			
-			bodyIndex=content.indexOf(")", startIndex)+1;
+			bodyIndex=lookAhead(')', content, startIndex, false)+1;
 			
 			String expr=content.substring(endIndex, bodyIndex-1).trim();
 			
@@ -168,7 +222,7 @@ public class TemplatePreprocessor {
 		{
 			node.setStartIndex(startIndex);
 			
-			bodyIndex=content.indexOf("}", startIndex)+1;
+			bodyIndex=lookAhead('}', content, startIndex, false)+1;
 			
 			node.setExprNodes(exprProcessor.preprocess(content.substring(endIndex, bodyIndex-1).trim()));
 
@@ -180,5 +234,39 @@ public class TemplatePreprocessor {
 		}
 		
 		return bodyIndex;
+	}
+	
+	private int lookAhead(char ch, String content, int currentIndex, boolean immediate)
+	{
+		if(!immediate)
+		{
+			int tmpIndex=content.indexOf(ch, currentIndex);
+			
+			if(tmpIndex>0)
+			{
+				return tmpIndex;
+			}
+		}
+		else
+		{
+			int max=content.length();
+			
+			while(currentIndex<max)
+			{
+				char tmpChar=content.charAt(currentIndex);
+				if(tmpChar==ch)
+				{
+					return currentIndex;
+				}
+				else if(!Character.isWhitespace(tmpChar))
+				{
+					throw new PreprocessorException("expected '"+ch+"' character...but found...'"+tmpChar+"'");
+				}
+				
+				currentIndex++;
+			}
+		}
+		
+		throw new PreprocessorException("illegal template syntax...expected character...'"+ch+"' not found");
 	}
 }

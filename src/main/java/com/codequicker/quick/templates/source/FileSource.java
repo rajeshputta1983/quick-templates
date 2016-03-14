@@ -43,7 +43,7 @@ public class FileSource implements ISource {
 			
 			while((line=reader.readLine())!=null)
 			{
-				content.append(line);
+				content.append(line).append("\r\n");
 			}
 			
 			return content.toString();

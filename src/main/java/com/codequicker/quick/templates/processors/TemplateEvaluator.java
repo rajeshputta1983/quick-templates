@@ -72,6 +72,39 @@ public class TemplateEvaluator {
 				traverseChildren=false;
 			}
 		}
+		else if(node.getType()==NodeType.SWITCH)
+		{
+			String result=exprEvaluator.evaluateAsPrimitive(node.getExprNodes(), context);
+			
+			Node defaultCase=null;
+			
+			boolean caseFound=false;
+			
+			for(Node caseNode: node.getChildren())
+			{
+				if(caseNode.getType()==NodeType.DEFAULT)
+				{
+					defaultCase=caseNode;
+					continue;
+				}
+					
+				String caseContent=caseNode.getContent();
+				
+				if(caseContent.equalsIgnoreCase(result))
+				{
+					traverseChildren(caseNode, content, context);
+					caseFound=true;
+					break;
+				}
+			}
+			
+			if(!caseFound && defaultCase!=null)
+			{
+				traverseChildren(defaultCase, content, context);
+			}
+			
+			traverseChildren=false;
+		}
 		else if(node.getType()==NodeType.FOR)
 		{
 			traverseChildren=false;

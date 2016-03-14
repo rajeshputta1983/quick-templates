@@ -23,7 +23,7 @@ import java.util.Map;
 * @author Rajesh Putta
 */
 public enum NodeType {
-	ROOT(""), TEXT(""), IF("#if"), FOR("#for"), EXPR("${");
+	ROOT(""), TEXT(""), IF("#if"), SWITCH("#switch"), CASE("#case"), DEFAULT("#default"), FOR("#for"), EXPR("${");
 
 	private static Map<String, NodeType> nodeTypesMap=new HashMap<String, NodeType>();
 	
