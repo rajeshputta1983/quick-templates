@@ -17,12 +17,13 @@ limitations under the License.
 package com.codequicker.quick.templates.processors;
 
 import java.util.Iterator;
+import java.util.List;
 
 import com.codequicker.quick.templates.cache.TemplateCache;
 import com.codequicker.quick.templates.exceptions.TemplateRuntimeException;
+import com.codequicker.quick.templates.state.EngineContext;
 import com.codequicker.quick.templates.state.Node;
 import com.codequicker.quick.templates.state.NodeType;
-import com.codequicker.quick.templates.state.EngineContext;
 
 /*
 * @author Rajesh Putta
@@ -69,6 +70,27 @@ public class TemplateEvaluator {
 			
 			if(!result)
 			{
+				List<Node> nodeList=node.getElseNodes();
+				
+				for(int nodeIndex=0;nodeIndex<nodeList.size();nodeIndex++)
+				{
+					Node elseNode=nodeList.get(nodeIndex);
+					
+					boolean elseNodeFlag=false;
+					boolean elseResult=false;
+					
+					if(elseNode.getType()==NodeType.ELSE)
+						elseNodeFlag=true;
+					else
+						elseResult=exprEvaluator.evaluateAsBoolean(elseNode.getExprNodes(), context);
+					
+					if(elseResult || elseNodeFlag)
+					{
+						traverseChildren(elseNode, content, context);
+						break;
+					}
+				}
+				
 				traverseChildren=false;
 			}
 		}

@@ -29,6 +29,7 @@ public class Node {
 	private List<ExpressionNode> exprNodes;
 	private String content;
 	private List<Node> children=new ArrayList<Node>();
+	private List<Node> elseNodes=new ArrayList<Node>();
 	
 	private int startIndex;
 	private int endIndex;
@@ -92,5 +93,17 @@ public class Node {
 	
 	public String getVariable() {
 		return variable;
+	}
+	
+	public void setElseNodes(List<Node> elseNodes) {
+		this.elseNodes = elseNodes;
+	}
+	
+	public List<Node> getElseNodes() {
+		return elseNodes;
+	}
+	
+	public void addElseNode(Node elseNode) {
+		this.elseNodes.add(elseNode);
 	}
 }

@@ -1,9 +1,9 @@
-#if(#xml.inventory.book[0]@year==2000 && #dummy==null && #status && #json.person.name~='Rajesh' && #myname=='rajesh' && #company.code=='xyz' || #company.code=='abc')
+#if(#company.code=='xyz' || #data=='false' || #data=='123')
 
 Hello This is sample template text - Para1
 	
 	#switch(#company.name)
-		#case(abc): #{#xml.inventory.book[0].title}
+		#case(xyz): #{#xml.inventory.book[0].title}
 					#{#xml.inventory.book[1].title}
 					#{#xml.inventory.book[0]@year}/#{#xml.inventory.book[2]@year}
 
@@ -11,7 +11,7 @@ Hello This is sample template text - Para1
 						Author #{#book$index} - #{#book.author@alias}
 					#end
 		#end
-		#case(xyz): #{#json.person.address[1].type}
+		#case(abc): #{#json.person.address[1].type}
 					#{#json.person.address[1].location}
 					#{#json.person.address[0].type}
 					#{#json.person.address[0].location}
@@ -21,10 +21,17 @@ Hello This is sample template text - Para1
 		#end		
 	#end
 	
-	
-Para 2
-	
-#if(#company.code=='xyz' && #data=='false' || #data=='123')  
+#if(#company.code=='xyz' && #data=='123')	
+	Para 21
+#else if(#data=='345')
+	Para 22
+#else if(#data!='123')
+	Para 23
+#else
+	Para 24
+#end	
+
+#if(#xml.inventory.book[0]@year==2000 && #dummy==null && #status && #json.person.name~='Rajesh' && #myname=='rajesh' && #company.code=='xyz' || #company.code=='abc')	
 
 Para 3
 	

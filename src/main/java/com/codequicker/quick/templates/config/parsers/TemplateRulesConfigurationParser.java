@@ -30,6 +30,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.codequicker.quick.templates.cache.TemplateCache;
+import com.codequicker.quick.templates.exceptions.PreprocessorException;
 import com.codequicker.quick.templates.processors.ExpressionPreprocessor;
 import com.codequicker.quick.templates.processors.TemplatePreprocessor;
 import com.codequicker.quick.templates.source.FileSource;
@@ -38,6 +39,7 @@ import com.codequicker.quick.templates.state.BindingDefinition;
 import com.codequicker.quick.templates.state.Node;
 import com.codequicker.quick.templates.state.RuleDefinition;
 import com.codequicker.quick.templates.utils.StreamUtils;
+import com.codequicker.quick.templates.utils.TemplateUtil;
 
 /*
 * @author Rajesh Putta
@@ -102,6 +104,16 @@ public class TemplateRulesConfigurationParser extends DefaultHandler {
 			def.setExprNodes(exprProcessor.preprocess(attributes.getValue("expr")));
 			
 			String templatePath=attributes.getValue("template");
+			
+			if(TemplateUtil.isNullOrEmpty(templatePath))
+			{
+				throw new PreprocessorException("template path cannot be null or empty...");
+			}
+			
+			if(!templatePath.endsWith(".qt"))
+			{
+				throw new PreprocessorException("template path should end with .qt extension...");
+			}
 			
 			def.setPayloadTemplatePath(templatePath);
 			

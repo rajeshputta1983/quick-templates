@@ -94,21 +94,21 @@ public class ExpressionEvaluator {
 				{
 					if(operatorFlag)
 					{
+						prevResult&=result;
+
 						if(!prevResult)
 						{
 							break;
 						}
-							
-						prevResult&=result;
 					}
 					else
 					{
+						prevResult|=result;
+						
 						if(prevResult)
 						{
 							break;
 						}
-						
-						prevResult|=result;
 					}
 				}
 			}
@@ -139,21 +139,21 @@ public class ExpressionEvaluator {
 				{
 					if(operatorFlag)
 					{
+						prevResult&=booleanResult;
+
 						if(!prevResult)
 						{
 							break;
 						}
-							
-						prevResult&=booleanResult;
 					}
 					else
 					{
+						prevResult|=booleanResult;
+						
 						if(prevResult)
 						{
 							break;
 						}
-						
-						prevResult|=booleanResult;
 					}
 				}
 

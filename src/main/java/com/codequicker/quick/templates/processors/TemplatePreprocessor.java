@@ -37,7 +37,7 @@ public class TemplatePreprocessor {
 	
 	private Pattern forExprPattern=Pattern.compile("[^\\s]+\\s+(in)\\s+([^\\s]+(\\.)?)+", Pattern.CASE_INSENSITIVE);
 	
-	private Pattern keywordPattern=Pattern.compile("(#for\\s*\\()|(#if\\s*\\()|(#end)|(#\\{)|(#switch\\s*\\()|(#case\\s*\\()|(#default\\s*)");
+	private Pattern keywordPattern=Pattern.compile("(#for\\s*\\()|(#if\\s*\\()|(#else\\sif\\s*\\()|(#else\\s+)|(#end)|(#\\{)|(#switch\\s*\\()|(#case\\s*\\()|(#default\\s*)");
 	
 	private int lastIndex=0;
 	
@@ -91,13 +91,14 @@ public class TemplatePreprocessor {
 		
 		if(nodeStack.size()>1)
 		{
-			// TO DO :: add tags and position level details for better debugging
+			String message=TemplateSyntaxFailureMapper.getInstance().convertToReadableFormat(nodeStack, content);
 			
-			throw new PreprocessorException("Template is syntactically not correct...\n"+content);
+			throw new PreprocessorException("Template is syntactically not correct...\r\n"+message);
 		}
 		
 		return rootNode;
 	}
+	
 	
 	private int handleKeyword(String content, String keyword, int startIndex, int endIndex)
 	{
@@ -109,17 +110,52 @@ public class TemplatePreprocessor {
 			node.setType(NodeType.FOR);
 		else if(keyword.startsWith("#if"))
 			node.setType(NodeType.IF);
+		else if(keyword.startsWith("#else if"))
+			node.setType(NodeType.ELSE_IF);
+		else if(keyword.startsWith("#else"))
+			node.setType(NodeType.ELSE);
 		else if(keyword.startsWith("#switch"))
 			node.setType(NodeType.SWITCH);
 		else if(keyword.startsWith("#case"))
 			node.setType(NodeType.CASE);
 		else if(keyword.startsWith("#default"))
-				node.setType(NodeType.DEFAULT);	
+			node.setType(NodeType.DEFAULT);	
 		else if(keyword.startsWith("#{"))
 			node.setType(NodeType.EXPR);
 		else if(keyword.startsWith("#end"))
 		{
 			bodyIndex=startIndex+4;
+			
+			Node topNode=nodeStack.peek();
+			
+			if(topNode.getType()==NodeType.ELSE_IF || topNode.getType()==NodeType.ELSE)
+			{
+				Stack<Node> tmpChildNodeStack=new Stack<Node>();
+				
+				for(int nodeIndex=nodeStack.size()-1;nodeIndex>=0;nodeIndex--)
+				{
+					topNode=nodeStack.pop();
+					
+					if(topNode.getType()==NodeType.IF)
+					{
+						for(;!tmpChildNodeStack.isEmpty();)
+						{
+							topNode.addElseNode(tmpChildNodeStack.pop());
+						}
+						
+						nodeStack.push(topNode);
+						
+						break;
+					}
+					
+					tmpChildNodeStack.push(topNode);
+				}
+			}
+			
+			if(nodeStack.empty())
+			{
+				throw new PreprocessorException("encountered '#end' but no starting node found...");
+			}
 			
 			Node current=nodeStack.pop();
 			
@@ -130,7 +166,10 @@ public class TemplatePreprocessor {
 			}
 			else
 				nodeStack.push(current);
+			
+			return bodyIndex;
 		}
+
 		
 		if(keyword.startsWith("#if") || keyword.startsWith("#switch"))
 		{
@@ -139,6 +178,52 @@ public class TemplatePreprocessor {
 			bodyIndex=lookAhead(')', content, startIndex, false)+1;
 			
 			node.setExprNodes(exprProcessor.preprocess(content.substring(endIndex, bodyIndex-1).trim()));
+
+			nodeStack.push(node);
+		}
+		else if(keyword.startsWith("#else if"))
+		{
+			node.setStartIndex(startIndex);
+			
+			bodyIndex=lookAhead(')', content, startIndex, false)+1;
+			
+			node.setExprNodes(exprProcessor.preprocess(content.substring(endIndex, bodyIndex-1).trim()));
+			
+			if(!nodeStack.empty())
+			{
+				Node parent=nodeStack.peek();
+				
+				if(parent.getType()!=NodeType.IF && parent.getType()!=NodeType.ELSE_IF)
+				{
+					throw new PreprocessorException("'#else if' encountered without parent #if....");
+				}
+			}
+			else
+			{
+				throw new PreprocessorException("'#else if' encountered without parent #if....");
+			}
+
+			nodeStack.push(node);
+		}
+		else if(keyword.startsWith("#else"))
+		{
+			node.setStartIndex(startIndex);
+			
+			bodyIndex=endIndex;
+			
+			if(!nodeStack.empty())
+			{
+				Node parent=nodeStack.peek();
+				
+				if(parent.getType()!=NodeType.IF && parent.getType()!=NodeType.ELSE_IF)
+				{
+					throw new PreprocessorException("'#else' encountered without parent #if....");
+				}
+			}
+			else
+			{
+				throw new PreprocessorException("'#else' encountered without parent #if....");
+			}
 
 			nodeStack.push(node);
 		}
@@ -232,6 +317,8 @@ public class TemplatePreprocessor {
 				parent.addChild(node);
 			}
 		}
+		
+		node.setEndIndex(bodyIndex);
 		
 		return bodyIndex;
 	}
