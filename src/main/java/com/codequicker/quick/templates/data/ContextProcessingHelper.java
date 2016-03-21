@@ -17,6 +17,7 @@ limitations under the License.
 package com.codequicker.quick.templates.data;
 
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.codequicker.quick.templates.state.EngineContext;
 import com.google.gson.JsonElement;
@@ -48,17 +49,21 @@ public class ContextProcessingHelper {
 		
 		Object finalValue=null;
 		
-		if("json".equalsIgnoreCase(firstKey))
+		Object value=context.get(firstKey);
+		
+		if(value instanceof JsonElement)
 		{
+			context.setJsonObject((JsonElement)value);
 			finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.JSON).lookup(key.substring(keyIndex+1), context, null, returnArrayType);
 		}
-		else if("xml".equalsIgnoreCase(firstKey))
+		else if(value instanceof Node || value instanceof NodeList)
 		{
+			context.setXmlRoot(value);
 			finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.XML).lookup(key.substring(keyIndex+1), context, null, returnArrayType);
 		}
 		else 
 		{
-			Object value=context.getVariable(firstKey);
+			value=context.getVariable(firstKey);
 			
 			if(value!=null)
 			{

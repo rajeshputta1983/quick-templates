@@ -3,18 +3,18 @@
 Hello This is sample template text - Para1
 	
 	#switch(#company.name)
-		#case(xyz): #{#xml.inventory.book[0].title}
-					#{#xml.inventory.book[1].title}
-					#{#xml.inventory.book[0]@year}/#{#xml.inventory.book[2]@year}
+		#case(xyz): #{#someXml.inventory.book[0].title}
+					#{#someXml.inventory.book[1].title}
+					#{#someXml.inventory.book[0]@year}/#{#someXml.inventory.book[2]@year}
 
-					#for(book in #xml.inventory.book)
+					#for(book in #someXml.inventory.book)
 						Author #{#book$index} - #{#book.author@alias}
 					#end
 		#end
-		#case(abc): #{#json.person.address[1].type}
-					#{#json.person.address[1].location}
-					#{#json.person.address[0].type}
-					#{#json.person.address[0].location}
+		#case(abc): #{#someJson.person.address[1].type}
+					#{#someJson.person.address[1].location}
+					#{#someJson.person.address[0].type}
+					#{#someJson.person.address[0].location}
 		#end
 		#default:
 				default case got executed
@@ -23,6 +23,9 @@ Hello This is sample template text - Para1
 	
 #if(#company.code=='xyz' && #data=='123')	
 	Para 21
+	#for(book in #someXml.inventory.book)
+		Author #{#book$index} - #{#book.author@alias}
+	#end	
 #else if(#data=='345')
 	Para 22
 #else if(#data!='123')
@@ -31,11 +34,11 @@ Hello This is sample template text - Para1
 	Para 24
 #end	
 
-#if(#xml.inventory.book[0]@year==2000 && #dummy==null && #status && #json.person.name~='Rajesh' && #myname=='rajesh' && #company.code=='xyz' || #company.code=='abc')	
+#if(#someXml.inventory.book[0]@year==2000 && #dummy==null && #status && #someJson.person.name~='Rajesh' && #myname=='rajesh' && #company.code=='xyz' || #company.code=='abc')	
 
 Para 3
 	
-	#for(addr1 in #json.person.address)
+	#for(addr1 in #someJson.person.address)
 		hello #{#addr1.type} - #{#addr1.location} !! 
 		#{#addr1$index}
 		#for(addr2 in #employee.address)
@@ -47,7 +50,7 @@ Para 4
 	
 	#if(#data<='123')
 		Para 5
-	#end	
+	#end
 	Para 6
 	#end
 Para 7

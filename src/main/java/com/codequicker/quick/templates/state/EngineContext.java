@@ -54,7 +54,7 @@ public class EngineContext {
 		this.context.put(key, value);
 	}
 	
-	public void setXml(String payload)
+	public void setXml(String key, String payload)
 	{
 		if(TemplateUtil.isNullOrEmpty(payload))
 			return;
@@ -65,7 +65,10 @@ public class EngineContext {
 
         try {
 			builder = factory.newDocumentBuilder();
-			this.xmlRoot = builder.parse(new ByteArrayInputStream(payload.getBytes("UTF8"))).getDocumentElement();
+			Object xmlRoot = builder.parse(new ByteArrayInputStream(payload.getBytes("UTF8"))).getDocumentElement();
+			
+			context.put(key, xmlRoot);
+			
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
@@ -77,17 +80,27 @@ public class EngineContext {
 		}
 	}
 	
+	public void setXmlRoot(Object xmlRoot) {
+		this.xmlRoot = xmlRoot;
+	}
+	
 	public Object getXmlRoot() {
 		return xmlRoot;
 	}
 	
-	public void setJson(String payload)
+	public void setJson(String key,String payload)
 	{
-		if(TemplateUtil.isNullOrEmpty(payload))
+		if(TemplateUtil.isNullOrEmpty(payload) || TemplateUtil.isNullOrEmpty(key))
 			return;
 		
 		JsonParser jsonParser = new JsonParser();
-		jsonObject = jsonParser.parse(payload).getAsJsonObject();		
+		JsonElement jsonObject = jsonParser.parse(payload).getAsJsonObject();		
+		
+		context.put(key, jsonObject);
+	}
+	
+	public void setJsonObject(JsonElement jsonObject) {
+		this.jsonObject = jsonObject;
 	}
 	
 	public JsonElement getJsonObject() {

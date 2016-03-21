@@ -94,7 +94,7 @@ public class TemplateEngineTester {
 				"  " + 
 				"}";
 		
-		context.setJson(jsonPayload);
+		context.setJson("someJson",jsonPayload);
 		
 		
 		String xml="<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + 
@@ -122,7 +122,7 @@ public class TemplateEngineTester {
 				"    </book>" + 
 				"</inventory>";
 		
-		context.setXml(xml);
+		context.setXml("someXml",xml);
 		
 		
 		

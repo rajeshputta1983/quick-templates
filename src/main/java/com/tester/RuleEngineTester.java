@@ -87,7 +87,7 @@ public class RuleEngineTester {
 				"  " + 
 				"}";
 		
-		context.setJson(jsonPayload);
+		context.setJson("someJson", jsonPayload);
 		
 		IEngine ruleEngine=EngineFactory.getInstance().getEngine(EngineType.RULES);
 		

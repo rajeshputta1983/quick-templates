@@ -21,8 +21,8 @@ limitations under the License.
     <payload rootDirectory="C:\payloads"/>
     
     <binding id="testPayload">
+        <rule expr="#company.code!='xyz'" template="test\sample-method-call-template.qt"></rule>
         <rule expr="#status and #company.code=='xyz' and #myname=='rajesh'" template="test\sample-payload-template.qt"></rule>
-        <rule expr="#method=='POST'" template="test\sample-payload-template.qt"></rule>
     </binding>
  
  </template-config>
