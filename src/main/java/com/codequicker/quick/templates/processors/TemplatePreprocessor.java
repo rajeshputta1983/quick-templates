@@ -39,6 +39,8 @@ public class TemplatePreprocessor {
 	
 	private Pattern keywordPattern=Pattern.compile("(#for\\s*\\()|(#if\\s*\\()|(#else\\sif\\s*\\()|(#else\\s+)|(#end)|(#\\{)|(#switch\\s*\\()|(#case\\s*\\()|(#default\\s*)");
 	
+	private Stack<String> tokenStack=new Stack<String>();
+	
 	private int lastIndex=0;
 	
 	public Node preprocess(String content)
@@ -175,7 +177,7 @@ public class TemplatePreprocessor {
 		{
 			node.setStartIndex(startIndex);
 			
-			bodyIndex=lookAhead(')', content, startIndex, false)+1;
+			bodyIndex=lookAheadAndEscapeSimilar('(',')', content, startIndex)+1;
 			
 			node.setExprNodes(exprProcessor.preprocess(content.substring(endIndex, bodyIndex-1).trim()));
 
@@ -185,7 +187,7 @@ public class TemplatePreprocessor {
 		{
 			node.setStartIndex(startIndex);
 			
-			bodyIndex=lookAhead(')', content, startIndex, false)+1;
+			bodyIndex=lookAheadAndEscapeSimilar('(',')', content, startIndex)+1;
 			
 			node.setExprNodes(exprProcessor.preprocess(content.substring(endIndex, bodyIndex-1).trim()));
 			
@@ -279,7 +281,7 @@ public class TemplatePreprocessor {
 		{
 			node.setStartIndex(startIndex);
 			
-			bodyIndex=lookAhead(')', content, startIndex, false)+1;
+			bodyIndex=lookAheadAndEscapeSimilar('(',')', content, startIndex)+1;
 			
 			String expr=content.substring(endIndex, bodyIndex-1).trim();
 			
@@ -356,4 +358,40 @@ public class TemplatePreprocessor {
 		
 		throw new PreprocessorException("illegal template syntax...expected character...'"+ch+"' not found");
 	}
+	
+	private int lookAheadAndEscapeSimilar(char startChar, char endChar, String content, int currentIndex)
+	{
+		tokenStack.clear();
+		
+		int tmpIndex=currentIndex;
+		
+		int max=content.length();
+		
+		while(currentIndex<max)
+		{
+			char tmpChar=content.charAt(currentIndex);
+
+			if(tmpChar==startChar)
+				tokenStack.push(String.valueOf(tmpChar));
+			else if(tmpChar==endChar)
+			{
+				if(tokenStack.isEmpty())
+				{
+					throw new PreprocessorException("unexpected '"+tmpChar+"' encountered...@"+currentIndex);
+				}
+				
+				tokenStack.pop();
+				
+				if(tokenStack.isEmpty())
+				{
+					return currentIndex;
+				}
+			}
+			
+			currentIndex++;
+		}
+		
+		throw new PreprocessorException("illegal template syntax...@"+tmpIndex);
+	}
+	
 }

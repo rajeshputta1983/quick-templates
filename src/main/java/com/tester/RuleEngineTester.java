@@ -41,6 +41,7 @@ public class RuleEngineTester {
 		context.set("bindingId", "testPayload");
 		context.set("myname", "rajesh");
 		context.set("status", "true");
+		context.set("customObject", new MyCustomObject());
 		
 		
 		Map<String, Object> employeeMap=new HashMap<String, Object>();
@@ -61,6 +62,7 @@ public class RuleEngineTester {
 		employeeAddressMap.put("location", "mykondapur");
 		
 		employeeAddressList.add(employeeAddressMap);
+		
 		
 		employeeMap.put("address", employeeAddressList);
 		
@@ -88,12 +90,18 @@ public class RuleEngineTester {
 				"}";
 		
 		context.setJson("someJson", jsonPayload);
+
+		long startTime=System.currentTimeMillis();
 		
 		IEngine ruleEngine=EngineFactory.getInstance().getEngine(EngineType.RULES);
 		
 		ruleEngine.initialize("/com/tester/rules-config.xml");
 		
 		ruleEngine.execute(context);
+
+		long delta=System.currentTimeMillis()-startTime;
+		
+		System.out.println("Time Taken (ms) : "+delta);
 		
 	}
 }

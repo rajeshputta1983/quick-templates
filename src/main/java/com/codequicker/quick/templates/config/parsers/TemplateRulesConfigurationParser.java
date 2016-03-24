@@ -141,5 +141,5 @@ public class TemplateRulesConfigurationParser extends DefaultHandler {
 	{
 		return this.definitionMap.get(bindingId);
 	}
-
+	
 }

@@ -48,7 +48,7 @@ public class ExpressionEvaluator {
 			throw new TemplateRuntimeException("expression is not of type array...");
 		}
 		
-		return lookupHandler.lookup(exprNode.getLeftOperand(), context, true);
+		return lookupHandler.lookup(exprNode.getLeftOperand(), exprNode.getLeftNode(), context, true);
 	}
 	
 	public String evaluateAsPrimitive(List<ExpressionNode> exprNodeList, EngineContext context)
@@ -57,7 +57,7 @@ public class ExpressionEvaluator {
 		{
 			ExpressionNode exprNode=exprNodeList.get(0);
 			
-			return (String)lookupHandler.lookup(exprNode.getLeftOperand(), context, false);
+			return (String)lookupHandler.lookup(exprNode.getLeftOperand(), exprNode.getLeftNode(), context, false);
 		}
 		else
 		{
@@ -78,11 +78,11 @@ public class ExpressionEvaluator {
 		{
 			if(exprNode.isLogicalExpression())
 			{
-				Object leftValue=lookupHandler.lookup(exprNode.getLeftOperand(), context, false);
+				Object leftValue=lookupHandler.lookup(exprNode.getLeftOperand(), exprNode.getLeftNode(), context, false);
 				
 				String operator=exprNode.getOperator();
 				
-				Object rightValue=lookupHandler.lookup(exprNode.getRightOperand(), context, false);
+				Object rightValue=lookupHandler.lookup(exprNode.getRightOperand(), exprNode.getRightNode(), context, false);
 				
 				boolean result=evaluateExpression(leftValue, operator, rightValue);
 				
@@ -127,7 +127,7 @@ public class ExpressionEvaluator {
 			}
 			else if(exprNode.isSingleEntity())
 			{
-				String result=(String)lookupHandler.lookup(exprNode.getLeftOperand(), context, false);
+				String result=(String)lookupHandler.lookup(exprNode.getLeftOperand(), exprNode.getLeftNode(), context, false);
 				
 				boolean booleanResult=(result!=null && result.equalsIgnoreCase("true"))?true:false;
 				

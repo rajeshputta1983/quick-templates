@@ -32,58 +32,81 @@ public class ExpressionPreprocessor {
 	
 	private List<ExpressionNode> nodeList=null;
 	
-	private Pattern exprPattern=Pattern.compile("([^\\s]+(\\.)?)+(\\s*)((~=|==|!=|<=|>=|<|>)(\\s*)([^\\s]+(\\.)?)+)?", Pattern.CASE_INSENSITIVE);
+//	private Pattern exprPattern=Pattern.compile("([^\\s]+(\\.)?)+(\\s*)((~=|==|!=|<=|>=|<|>)(\\s*)([^\\s]+(\\.)?)+)?", Pattern.CASE_INSENSITIVE);
 	
 	private Pattern operatorPattern=Pattern.compile("(\\s*)(~=|==|!=|<=|>=|<|>)(\\s*)");
 	
-	private Pattern booleanOperatorPattern=Pattern.compile("(\\s*)(and|or|&&|\\|\\|)(\\s*)", Pattern.CASE_INSENSITIVE);
+	private Pattern booleanOperatorPattern=Pattern.compile("(\\s+)(and|or|&&|\\|\\|)(\\s+)", Pattern.CASE_INSENSITIVE);
+	
+	public ExpressionPreprocessor() {
+	}
 	
 	public List<ExpressionNode> preprocess(String expr)
 	{
 		if(TemplateUtil.isNullOrEmpty(expr))
 			throw new PreprocessorException("expression used with #if or #for keywords cannot be null or empty...");
+
+		ExpressionHierarchyPreprocessor preProcessor=new ExpressionHierarchyPreprocessor();
 		
 		this.nodeList=new ArrayList<ExpressionNode>();
 		
-		Matcher matcher=exprPattern.matcher(expr);
+		Matcher booleanMatcher=booleanOperatorPattern.matcher(expr);
 		
-		while(matcher.find())
+		int prevIndex=0;
+		
+		while(booleanMatcher.find())
 		{
-			String subExpr=matcher.group();
+			int booleanStartIndex=booleanMatcher.start();
 			
-			Matcher booleanMatcher=booleanOperatorPattern.matcher(subExpr);
+			String subExpr=expr.substring(prevIndex, booleanStartIndex);
+			
+			prevIndex=booleanMatcher.end();
+
+			processExpression(preProcessor, subExpr);
 			
 			ExpressionNode exprNode=new ExpressionNode();
-			
-			if(booleanMatcher.matches())
-			{
-				exprNode.setBooleanOperator(subExpr.trim());
-			}
-			else
-			{
-				Matcher operatorMatcher=operatorPattern.matcher(subExpr);
-				
-				if(operatorMatcher.find())
-				{
-					int opStartIndex=operatorMatcher.start();
-					int opEndIndex=operatorMatcher.end();
-					
-					String leftOperand=subExpr.substring(0, opStartIndex);
-					String rightOperand=subExpr.substring(opEndIndex);
-					
-					exprNode.setLeftOperand(leftOperand.trim());
-					exprNode.setRightOperand(rightOperand.trim());
-					exprNode.setOperator(operatorMatcher.group().trim());
-				}
-				else
-				{
-					exprNode.setLeftOperand(subExpr.trim());
-				}
-			}
+			exprNode.setBooleanOperator(booleanMatcher.group().trim());
 			
 			nodeList.add(exprNode);
 		}
 		
+		processExpression(preProcessor, expr.substring(prevIndex));
+		
 		return nodeList;
+	}
+	
+	private void processExpression(ExpressionHierarchyPreprocessor preProcessor, String subExpr)
+	{
+		Matcher operatorMatcher=operatorPattern.matcher(subExpr);
+		
+		ExpressionNode exprNode=new ExpressionNode();
+		
+		if(operatorMatcher.find())
+		{
+			int opStartIndex=operatorMatcher.start();
+			int opEndIndex=operatorMatcher.end();
+			
+			String leftOperand=subExpr.substring(0, opStartIndex);
+			String rightOperand=subExpr.substring(opEndIndex);
+			
+			
+			exprNode.setLeftOperand(leftOperand.trim());
+
+			exprNode.setLeftNode(preProcessor.processExpression(leftOperand.trim()));
+			
+			exprNode.setRightOperand(rightOperand.trim());
+
+			exprNode.setRightNode(preProcessor.processExpression(rightOperand.trim()));
+			
+			exprNode.setOperator(operatorMatcher.group().trim());
+		}
+		else
+		{
+			exprNode.setLeftOperand(subExpr.trim());
+			
+			exprNode.setLeftNode(preProcessor.processExpression(subExpr.trim()));
+		}
+		
+		nodeList.add(exprNode);
 	}
 }

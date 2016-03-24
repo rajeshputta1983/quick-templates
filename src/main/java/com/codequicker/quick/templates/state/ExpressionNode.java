@@ -22,8 +22,10 @@ package com.codequicker.quick.templates.state;
 public class ExpressionNode {
 	
 	private String leftOperand;
+	private VariableNode leftNode;
 	private String operator;
 	private String rightOperand;
+	private VariableNode rightNode;
 	private String booleanOperator;
 	
 	public String getLeftOperand() {
@@ -66,4 +68,19 @@ public class ExpressionNode {
 		return (this.operator!=null && this.leftOperand!=null && this.rightOperand!=null);
 	}
 	
+	public void setLeftNode(VariableNode leftNode) {
+		this.leftNode = leftNode;
+	}
+	
+	public VariableNode getLeftNode() {
+		return leftNode;
+	}
+	
+	public void setRightNode(VariableNode rightNode) {
+		this.rightNode = rightNode;
+	}
+	
+	public VariableNode getRightNode() {
+		return rightNode;
+	}
 }

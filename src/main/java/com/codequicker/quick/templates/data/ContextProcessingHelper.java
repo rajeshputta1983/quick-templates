@@ -20,6 +20,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.codequicker.quick.templates.state.EngineContext;
+import com.codequicker.quick.templates.state.VariableNode;
 import com.google.gson.JsonElement;
 
 /*
@@ -29,12 +30,16 @@ public class ContextProcessingHelper {
 	
 	private ContextLookupFactory lookupFactory=ContextLookupFactory.getInstance();
 	
-	public Object lookup(String key, EngineContext context, boolean returnArrayType)
+	public Object lookup(String key, VariableNode exprNode, EngineContext context, boolean returnArrayType)
 	{
 		if(!key.startsWith("#"))
 		{
 			return key;
 		}
+		
+		String tmpKey=key;
+		
+//		System.out.println(tmpKey);
 		
 		key=key.substring(1);
 
@@ -54,12 +59,12 @@ public class ContextProcessingHelper {
 		if(value instanceof JsonElement)
 		{
 			context.setJsonObject((JsonElement)value);
-			finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.JSON).lookup(key.substring(keyIndex+1), context, null, returnArrayType);
+			finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.JSON).lookup(key.substring(keyIndex+1), exprNode, context, null, returnArrayType);
 		}
 		else if(value instanceof Node || value instanceof NodeList)
 		{
 			context.setXmlRoot(value);
-			finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.XML).lookup(key.substring(keyIndex+1), context, null, returnArrayType);
+			finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.XML).lookup(key.substring(keyIndex+1), exprNode, context, null, returnArrayType);
 		}
 		else 
 		{
@@ -69,15 +74,15 @@ public class ContextProcessingHelper {
 			{
 				if(value instanceof JsonElement)
 				{
-					finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.JSON).lookup(key.substring(keyIndex+1), context, value, returnArrayType);
+					finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.JSON).lookup(key.substring(keyIndex+1), exprNode, context, value, returnArrayType);
 				}
 				else if(value instanceof Node)
 				{
-					finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.XML).lookup(key.substring(keyIndex+1), context, value, returnArrayType);
+					finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.XML).lookup(key.substring(keyIndex+1), exprNode, context, value, returnArrayType);
 				}
 				else
 				{
-					finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.MAP).lookup(key.substring(keyIndex+1), context, value, returnArrayType);
+					finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.MAP).lookup(key.substring(keyIndex+1), exprNode, context, context.getVariableContext(), returnArrayType);
 				}
 			}
 			else
@@ -87,7 +92,7 @@ public class ContextProcessingHelper {
 					return context.getVariable(key);
 				}
 				
-				finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.MAP).lookup(key, context, null, returnArrayType);
+				finalValue=lookupFactory.getLookupHandler(ContextLookupHandlerEnum.MAP).lookup(tmpKey, exprNode, context, null, returnArrayType);
 			}
 		}
 		

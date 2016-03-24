@@ -78,8 +78,7 @@ public class TemplateEngine implements IEngine {
 		BindingDefinition definition=templateRulesConfiguration.getBindingDefinition((String)context.get("bindingId"));
 		
 		if(definition==null)
-			throw new TemplateRuntimeException("bindingId is not configured in simulator configuration file...");
-
+			throw new TemplateRuntimeException("bindingId is not configured in configuration file...");
 		
 		List<RuleDefinition> rules=definition.getRuleDefList();
 		
@@ -100,6 +99,8 @@ public class TemplateEngine implements IEngine {
 		
 		if(TemplateUtil.isNullOrEmpty(filePath))
 			throw new TemplateRuntimeException("didn't match with any rule configured..."+context.get("bindingId"));
+		
+		
 		
 		return templateEvaluator.evaluate(filePath, context, cache);
 	}

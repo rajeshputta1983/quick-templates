@@ -1,4 +1,4 @@
-#if(#company.code=='xyz' || #data=='false' || #data=='123')
+#if(#company.code.substring(0, 2)=='xy' && #company.code=='xyz' && #customObject.getNames()[0]=='Quick')
 
 Hello This is sample template text - Para1
 	
@@ -41,7 +41,7 @@ Para 3
 	#for(addr1 in #someJson.person.address)
 		hello #{#addr1.type} - #{#addr1.location} !! 
 		#{#addr1$index}
-		#for(addr2 in #employee.address)
+		#for(addr2 in #employee.address.subList(1,2))
 			#{#addr2.type}/#{#addr2.location}
 			#{#addr2$index}
 		#end

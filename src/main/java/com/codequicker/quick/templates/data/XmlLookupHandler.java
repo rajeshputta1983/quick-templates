@@ -26,6 +26,7 @@ import org.w3c.dom.NodeList;
 
 import com.codequicker.quick.templates.exceptions.TemplateRuntimeException;
 import com.codequicker.quick.templates.state.EngineContext;
+import com.codequicker.quick.templates.state.VariableNode;
 
 /*
 * @author Rajesh Putta
@@ -38,7 +39,7 @@ public class XmlLookupHandler implements ILookupHandler {
 		return null;
 	}
 	
-	public Object lookup(String key, EngineContext context, Object reference,
+	public Object lookup(String key, VariableNode exprNode, EngineContext context, Object reference,
 			boolean returnArrayType) {
 		
 		Object node=(reference!=null)?(Node)reference:context.getXmlRoot();

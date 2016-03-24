@@ -16,6 +16,8 @@ limitations under the License.
 
 package com.codequicker.quick.templates.utils;
 
+import com.codequicker.quick.templates.exceptions.PreprocessorException;
+
 
 /*
 * @author Rajesh Putta
@@ -31,4 +33,47 @@ public class TemplateUtil {
 	{
 		return (str==null || str.trim().equals(""));
 	}
+	
+	public static int scanThroughForTargetChar(String expr, int index, char target)
+	{
+		int length=expr.length();
+		while(index<length)
+		{
+			char ch=expr.charAt(index);
+			
+			if(ch==target)
+			{
+				return index;
+			}
+			
+			index++;
+		}
+		
+		throw new PreprocessorException("expected '"+target+"' character...not found...");
+	}
+
+	public static int lookAheadNeglectWhitespace(String expr, int index, char target)
+	{
+		int length=expr.length();
+		while(index<length)
+		{
+			char ch=expr.charAt(index);
+			
+			if(!Character.isWhitespace(ch))
+			{
+				if(ch==target)
+				{
+					return index;
+				}
+				else
+					return -1;
+			}
+			
+			index++;
+		}
+		
+		return -1;
+	}
+	
+	
 }

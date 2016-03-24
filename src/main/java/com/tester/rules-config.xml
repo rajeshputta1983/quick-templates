@@ -18,13 +18,16 @@ limitations under the License.
 
 <rules-config>
     
-    <rule id="testRule" expr="#status and #company.code=='abc'">
+<!--     <rule id="testRule" expr="#status and #company.code=='abc'">
         <processor name="processor1" class="com.tester.TestRuleProcessor"/>
         <processor name="processor2" class="com.tester.TestRuleProcessor"/>
     </rule>
-    
-    <rule id="testRule1" expr="#dummy!=null AND #status AND #json.person.name=='rajesh'">
-        <processor name="processor3" class="com.tester.TestRuleProcessor"/>
+ -->
+ 
+     <rule id="testRule" expr="#customObject.getNames()[0]=='Quick' and  #customObject.addDoubles(1.2 , 2.3)==3.5 and #employee.address[0].type=='myhome' and #status and #company.code.substring(0, 2)=='ab' and #employee.address.get(0).size()==2">
+        <processor name="processor1" class="com.tester.TestRuleProcessor"/>
+        <processor name="processor2" class="com.tester.TestRuleProcessor"/>
     </rule>
  
+     
  </rules-config>

@@ -66,7 +66,7 @@ public class TemplateEngineTester {
 		employeeMap.put("address", employeeAddressList);
 		
 		context.set("employee", employeeMap);
-		
+		context.set("customObject", new MyCustomObject());
 		
 		
 		
@@ -125,6 +125,7 @@ public class TemplateEngineTester {
 		context.setXml("someXml",xml);
 		
 		
+		long startTime=System.currentTimeMillis();
 		
 		IEngine templateEngine=EngineFactory.getInstance().getEngine(EngineType.TEMPLATES);
 		
@@ -132,7 +133,11 @@ public class TemplateEngineTester {
 		
 		String content=templateEngine.execute(context);
 		
+		long delta=System.currentTimeMillis()-startTime;
+		
 		System.out.println(content);
+		
+		System.out.println("Time Taken (ms) : "+delta);
 		
 	}
 }

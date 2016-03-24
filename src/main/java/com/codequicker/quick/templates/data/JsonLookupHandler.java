@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import com.codequicker.quick.templates.exceptions.TemplateRuntimeException;
 import com.codequicker.quick.templates.state.EngineContext;
+import com.codequicker.quick.templates.state.VariableNode;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -36,7 +37,7 @@ public class JsonLookupHandler implements ILookupHandler {
 		return null;
 	}
 	
-	public Object lookup(String key, EngineContext context, Object reference,
+	public Object lookup(String key, VariableNode exprNode, EngineContext context, Object reference,
 			boolean returnArrayType) {
 		
 		JsonElement jsonObject=(reference!=null)?(JsonElement)reference:context.getJsonObject();
