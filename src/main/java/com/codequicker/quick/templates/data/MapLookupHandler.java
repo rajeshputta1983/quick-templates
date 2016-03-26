@@ -16,193 +16,50 @@ limitations under the License.
 
 package com.codequicker.quick.templates.data;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.codequicker.quick.templates.exceptions.TemplateRuntimeException;
-import com.codequicker.quick.templates.state.EngineContext;
-import com.codequicker.quick.templates.state.VariableNode;
-import com.codequicker.quick.templates.state.VariableType;
-import com.codequicker.quick.templates.utils.ReflectionUtils;
-
 /*
 * @author Rajesh Putta
 */
-public class MapLookupHandler implements ILookupHandler {
+public class MapLookupHandler extends BaseDataLookupHandler {
 	
-	public Class<?> getType() {
-		return null;
+	private int position=-1;
+	
+	public MapLookupHandler(int position) {
+		this.position=position;
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public Object lookup(String key, VariableNode exprNode, EngineContext context, Object reference,
-			boolean returnArrayType) {
-
-		Object contextReference=(reference!=null)?reference:context.getContext();
-
-		contextReference=processRecursively(contextReference, null, exprNode);
-		
-		if(returnArrayType)
-		{
-			if(Iterable.class.isAssignableFrom(contextReference.getClass()))
-			{
-				return ((Iterable) contextReference).iterator();
-			}
-			else
-			{
-				throw new TemplateRuntimeException("Object is not of array type..."+key);
-			}
-		}
-		
-		return String.valueOf(contextReference);
-	}
-	
-	
-	@SuppressWarnings("rawtypes")
-	private Object processRecursively(Object context, Object carriedValue, VariableNode node)
+	public Object lookupFromMap(Object context, String key, boolean getMethodCall)
 	{
-		boolean processChildren=true;
-		
-		if(node.getType()==VariableType.LITERAL)
-		{
-			String tmp=node.getName();
-			
-			VariableType tmpType=node.getSubType();
-			
-			switch(tmpType)
-			{
-			case STRING: carriedValue=tmp;
-						 break;
-			case INT: carriedValue=Integer.parseInt(tmp);
-						break;
-			case DOUBLE: carriedValue=Double.parseDouble(tmp);
-						break;
-			case BOOLEAN: carriedValue=Boolean.parseBoolean(tmp);
-						break;
-			case NULL: carriedValue=null;
-						break;
-			}
-			
-			processChildren=false;
-		}
-		else if(node.getType()==VariableType.ROOT_VARIABLE)
-		{
-			int index=-1;
+		Class<?> clazz=context.getClass();
 
-			String tmpName=node.getName().substring(1);
-			
-			if(node.getSubType()==VariableType.ARRAY)
-			{
-				int startIndex=node.getName().indexOf("[");
-				
-				index=Integer.parseInt(node.getName().substring(startIndex+1, node.getName().indexOf("]", startIndex+1)));
-				
-				tmpName=tmpName.substring(0, startIndex);
-			}
-			
-			carriedValue=((Map)context).get(tmpName);
-
-			carriedValue=processArray(node, carriedValue, index);
-		}
-		else if(node.getType()==VariableType.VARIABLE)
+		if(Map.class.isAssignableFrom(clazz))
 		{
-			int index=-1;
-			
-			String tmpName=node.getName();
-			
-			if(node.getSubType()==VariableType.ARRAY)
-			{
-				int startIndex=node.getName().indexOf("[");
-				
-				index=Integer.parseInt(node.getName().substring(startIndex+1, node.getName().indexOf("]", startIndex+1)));
-				
-				tmpName=tmpName.substring(0, startIndex);
-			}
-			
-			Class<?> clazz=carriedValue.getClass();
-
-			if(Map.class.isAssignableFrom(clazz))
-			{
-				carriedValue=((Map)carriedValue).get(tmpName);
-			}
-			else
-			{
-				String methodName="get"+Character.toUpperCase(tmpName.charAt(0))+tmpName.substring(1);
-
-				carriedValue=ReflectionUtils.invokeMethod(carriedValue, methodName, Arrays.asList(new Class<?>[]{}), Arrays.asList(new Object[]{}));
-			}
-			
-			carriedValue=processArray(node, carriedValue, index);
-		}
-		else if(node.getType()==VariableType.METHOD_CALL)
-		{
-			processChildren=false;
-			
-			List<VariableNode> childList=node.getChildren();
-			
-			List<Object> paramList=new ArrayList<Object>();
-			List<Class<?>> classList=new ArrayList<Class<?>>();
-			
-			for(VariableNode child:childList)
-			{
-				Object tmp=processRecursively(context, null, child);
-				paramList.add(tmp);
-				classList.add(tmp.getClass());
-			}
-			
-			carriedValue=ReflectionUtils.invokeMethod(carriedValue, node.getName(), classList, paramList);
-			
-			if(node.getSubType()!=null && node.getSubType()==VariableType.ARRAY)
-			{
-				int index=-1;
-				
-				try
-				{
-					index=Integer.parseInt(node.getSubTypeContent());
-				}catch(NumberFormatException e)
-				{
-					throw new TemplateRuntimeException("number expected as array index...found..."+node.getSubTypeContent()+"\tMethod call..."+node.getName());
-				}
-				
-				carriedValue=processArray(node, carriedValue, index);
-			}
-		}
-
-		if(processChildren)
-		{
-			List<VariableNode> childList=node.getChildren();
-			
-			for(VariableNode child:childList)
-			{
-				carriedValue=processRecursively(context, carriedValue, child);
-			}
+			return ((Map)context).get(key);
 		}
 		
-		return carriedValue;
+		return getNextHandler(context, position).lookupFromMap(context, key, getMethodCall);
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private Object processArray(VariableNode node, Object carriedValue, int index)
+	public Object lookupFromList(Object context, String key, int index)
 	{
-		if(index==-1)
-			return carriedValue;
-		
-		Class clazz=carriedValue.getClass();
+		Class clazz=context.getClass();
 		
 		if(Object[].class.isAssignableFrom(clazz))
 		{
-			carriedValue=((Object[])carriedValue)[index];
+			return ((Object[])context)[index];
 		}
 		else if(List.class.isAssignableFrom(clazz))
 		{
-			carriedValue=((List)carriedValue).get(index);
+			return ((List)context).get(index);
 		}
 		else if(Iterable.class.isAssignableFrom(clazz))
 		{
-			Iterator iterator=((Iterable)carriedValue).iterator();
+			Iterator iterator=((Iterable)context).iterator();
 			
 			int count=0;
 			
@@ -219,6 +76,30 @@ public class MapLookupHandler implements ILookupHandler {
 			}
 		}
 
-		return carriedValue;
+		return getNextHandler(context, position).lookupFromList(context, key, index);
+	}
+	
+	public Object lookupAsPrimitive(Object context)
+	{
+		return getNextHandler(context, position).lookupAsPrimitive(context);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public Object returnFinalResult(Object context, boolean returnArrayType, String key)
+	{
+		if(returnArrayType)
+		{
+			if(Iterable.class.isAssignableFrom(context.getClass()))
+			{
+				return ((Iterable) context).iterator();
+			}
+		}
+		
+		if(String.class.isAssignableFrom(context.getClass()))
+		{
+			return String.valueOf(context);
+		}
+
+		return getNextHandler(context, position).returnFinalResult(context, returnArrayType, key);
 	}
 }

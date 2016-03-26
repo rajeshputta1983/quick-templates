@@ -20,5 +20,5 @@ package com.codequicker.quick.templates.data;
 * @author Rajesh Putta
 */
 public enum ContextLookupHandlerEnum {
-	MAP, JSON, XML
+	DEFAULT, MAP, JSON, XML
 }

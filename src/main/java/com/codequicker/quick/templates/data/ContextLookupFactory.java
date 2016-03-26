@@ -29,9 +29,7 @@ public class ContextLookupFactory {
 	private Map<ContextLookupHandlerEnum, ILookupHandler> cache=new HashMap<ContextLookupHandlerEnum, ILookupHandler>();
 	
 	private ContextLookupFactory(){
-		this.cache.put(ContextLookupHandlerEnum.MAP, new MapLookupHandler());
-		this.cache.put(ContextLookupHandlerEnum.JSON, new JsonLookupHandler());
-		this.cache.put(ContextLookupHandlerEnum.XML, new XmlLookupHandler());
+		this.cache.put(ContextLookupHandlerEnum.DEFAULT, new BaseContextLookupHandler());
 	}
 	
 	public static ContextLookupFactory getInstance()

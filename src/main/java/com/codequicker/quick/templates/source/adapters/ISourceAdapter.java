@@ -14,15 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-package com.codequicker.quick.templates.data;
+package com.codequicker.quick.templates.source.adapters;
 
-import com.codequicker.quick.templates.state.EngineContext;
-import com.codequicker.quick.templates.state.VariableNode;
 
 /*
 * @author Rajesh Putta
 */
-public interface ILookupHandler {
-	public Class<?> getType();
-	public Object lookup(String key, VariableNode exprNode, EngineContext context, boolean returnArrayType);	
+public interface ISourceAdapter {
+	
+	public Object transformContent(String filePath);
 }

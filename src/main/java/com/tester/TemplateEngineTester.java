@@ -24,6 +24,8 @@ import java.util.Map;
 import com.codequicker.quick.templates.core.EngineType;
 import com.codequicker.quick.templates.core.IEngine;
 import com.codequicker.quick.templates.core.EngineFactory;
+import com.codequicker.quick.templates.source.adapters.CsvSourceAdapter;
+import com.codequicker.quick.templates.source.adapters.ISourceAdapter;
 import com.codequicker.quick.templates.state.EngineContext;
 
 /*
@@ -31,6 +33,9 @@ import com.codequicker.quick.templates.state.EngineContext;
 */
 public class TemplateEngineTester {
 	public static void main(String[] args) throws Exception {
+		
+		// in-memory objects as context
+		
 		EngineContext context=new EngineContext();
 		
 		Map<String, String> companyData=new HashMap<String, String>();
@@ -72,9 +77,7 @@ public class TemplateEngineTester {
 		
 		
 		
-		
-		
-		
+		// json payload as context
 		
 		String jsonPayload="{" + 
 				"  \"person\": {" + 
@@ -96,6 +99,8 @@ public class TemplateEngineTester {
 		
 		context.setJson("someJson",jsonPayload);
 		
+
+		// xml payload as context
 		
 		String xml="<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + 
 				"<inventory>" + 
@@ -123,6 +128,18 @@ public class TemplateEngineTester {
 				"</inventory>";
 		
 		context.setXml("someXml",xml);
+		
+		
+		
+		// csv file as context
+		
+		ISourceAdapter sourceAdapter=new CsvSourceAdapter();
+
+		Object csvData=sourceAdapter.transformContent("C:\\payloads\\test\\sample-csv.csv");
+		
+		context.set("someCsv", csvData);
+		
+		
 		
 		
 		long startTime=System.currentTimeMillis();

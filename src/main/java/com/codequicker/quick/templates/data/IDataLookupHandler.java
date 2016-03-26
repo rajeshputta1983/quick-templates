@@ -16,13 +16,16 @@ limitations under the License.
 
 package com.codequicker.quick.templates.data;
 
-import com.codequicker.quick.templates.state.EngineContext;
-import com.codequicker.quick.templates.state.VariableNode;
 
 /*
 * @author Rajesh Putta
 */
-public interface ILookupHandler {
-	public Class<?> getType();
-	public Object lookup(String key, VariableNode exprNode, EngineContext context, boolean returnArrayType);	
+public interface IDataLookupHandler {
+	public Object lookupFromMap(Object context, String key, boolean getMethodCall);
+
+	public Object lookupFromList(Object context, String key, int index);
+
+	public Object lookupAsPrimitive(Object context);
+
+	public Object returnFinalResult(Object context, boolean returnArrayType, String key);
 }

@@ -25,199 +25,188 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.codequicker.quick.templates.exceptions.TemplateRuntimeException;
-import com.codequicker.quick.templates.state.EngineContext;
-import com.codequicker.quick.templates.state.VariableNode;
 
 /*
 * @author Rajesh Putta
 */
-public class XmlLookupHandler implements ILookupHandler {
+public class XmlLookupHandler extends BaseDataLookupHandler {
 	
-	private Pattern arrayNodePattern=Pattern.compile(".+\\[(\\d+)\\](@.+)?");
+	private static final Pattern ARRAY_ATTR_PATTERN=Pattern.compile("\\[\\d+\\]@");
 	
-	public Class<?> getType() {
-		return null;
+	private int position=-1;
+	
+	public XmlLookupHandler(int position) {
+		this.position=position;
 	}
 	
-	public Object lookup(String key, VariableNode exprNode, EngineContext context, Object reference,
-			boolean returnArrayType) {
+	public Object lookupFromMap(Object context, String key, boolean getMethodCall)
+	{
+		Element element=null;
 		
-		Object node=(reference!=null)?(Node)reference:context.getXmlRoot();
+		int attrIndex=key.indexOf("@");
 		
-		if(node==null)
-			throw new TemplateRuntimeException("No Xml Payload is set in the EngineContext instance...");
+		String attribute=null;
 		
-		String[] keys=key.split("\\.");
-		
-		boolean flag=(reference==null);
-		
-		boolean isArrayType=false;
-		
-		for(String xmlKey: keys)
+		if(attrIndex>-1)
 		{
-			Matcher matcher=arrayNodePattern.matcher(xmlKey);
+			attribute=key.substring(attrIndex+1);
+			key=key.substring(0, attrIndex);
+		}
+		
+		if(context instanceof Node)
+		{
+			element=(Element)context;
 			
-			if(matcher.matches())
-				isArrayType=true;
-			else
-				isArrayType=false;
-
-			if(isArrayType)
+			if(element!=null && element.getNodeName().equals(key))
 			{
-				String tmpKey=xmlKey;
-				
-				int startIndex=xmlKey.indexOf("[");
-				
-				int endIndex=xmlKey.indexOf("]", startIndex+1);
-				
-				String indexStr=xmlKey.substring(startIndex+1, endIndex);
-
-				xmlKey=xmlKey.substring(0, startIndex);
-
-				Element element=null;
-				
-				NodeList nodeList=null;
-				
-				if(node instanceof Node)
+				return context;
+			}
+			
+			NodeList tmpList=element.getElementsByTagName(key);
+			
+			if(attribute!=null)
+			{
+				if(tmpList.getLength()==1)
 				{
-					element=(Element)node;
-					nodeList=element.getElementsByTagName(xmlKey);
-				}
-				else if(node instanceof NodeList)
-				{
-					nodeList=(NodeList)node;
-				}
-				
-				int index=Integer.parseInt(indexStr);
-				
-				if(index>=nodeList.getLength())
-				{
-					throw new TemplateRuntimeException("Array index out of range...expected..."+index+"\tactual length..."+nodeList.getLength());
-				}
-					
-				node=nodeList.item(index);
-				
-				if(endIndex+2<tmpKey.length())
-				{
-					tmpKey=tmpKey.substring(endIndex+2);
-					NamedNodeMap namedNodeMap=((Node)node).getAttributes();
+					context=tmpList.item(0);
+					NamedNodeMap namedNodeMap=((Node)context).getAttributes();
 					
 					if(namedNodeMap==null)
 					{
-						throw new TemplateRuntimeException("element with no attributes...but tried to access attribute..."+tmpKey);
+						throw new TemplateRuntimeException("element with no attributes...but tried to access attribute..."+attribute);
 					}
 					
-					node=namedNodeMap.getNamedItem(tmpKey);
+					context=namedNodeMap.getNamedItem(attribute);
+				}
+				else if(tmpList.getLength()>1)
+				{
+					throw new TemplateRuntimeException("node list is not expected here..."+key);
 				}
 			}
 			else
 			{
-				int attrIndex=xmlKey.indexOf("@");
-				
-				String attribute=null;
-				
-				if(attrIndex>-1)
-				{
-					attribute=xmlKey.substring(attrIndex+1);
-					xmlKey=xmlKey.substring(0, attrIndex);
-				}
-				
-				Element element=null;
-				
-				if(node instanceof Node)
-				{
-					element=(Element)node;
-
-//					if(element.isSameNode((Node)context.getXmlRoot()))
-					if(flag)
-					{
-						flag=false;
-						continue;
-					}
-					
-					NodeList tmpList=element.getElementsByTagName(xmlKey);
-
-					if(attribute!=null)
-					{
-						if(tmpList.getLength()==1)
-						{
-							node=tmpList.item(0);
-							NamedNodeMap namedNodeMap=((Node)node).getAttributes();
-							
-							if(namedNodeMap==null)
-							{
-								throw new TemplateRuntimeException("element with no attributes...but tried to access attribute..."+attribute);
-							}
-							
-							node=namedNodeMap.getNamedItem(attribute);
-						}
-						else if(tmpList.getLength()>1)
-						{
-							throw new TemplateRuntimeException("node list is not expected here..."+xmlKey);
-						}
-					}
-					else
-					{
-						node=tmpList;
-					}
-				}
-				else if(node instanceof NodeList)
-				{
-					NodeList tmpList=(NodeList)node;
-					
-					if(tmpList.getLength()==1)
-					{
-						node=tmpList.item(0);
-						
-						NamedNodeMap namedNodeMap=((Node)node).getAttributes();
-						
-						if(namedNodeMap==null)
-						{
-							throw new TemplateRuntimeException("element with no attributes...but tried to access attribute..."+attribute);
-						}
-						
-						node=namedNodeMap.getNamedItem(attribute);
-					}
-					else
-					{
-						throw new TemplateRuntimeException("invalid key...observed list of nodes with parent tag..."+key);
-					}
-				}
+				context=tmpList;
 			}
-		}
-		
-		if(returnArrayType)
-		{
-			if(node instanceof NodeList)
-			{
-				return new NodeListIterator((NodeList)node);
-			}	
-			else
-			{
-				throw new TemplateRuntimeException("Xml node object is not of array type..."+key);
-			}
-		}
 
-		if(node instanceof Node)
-		{
-			return ((Node) node).getTextContent();
+			return context;
 		}
-		else if(node instanceof NodeList)
+		else if(context instanceof NodeList)
 		{
-			NodeList tmpList=(NodeList)node;
+			NodeList tmpList=(NodeList)context;
 			
 			if(tmpList.getLength()==1)
 			{
-				node=tmpList.item(0);
+				context=tmpList.item(0);
 				
-				return ((Node) node).getTextContent();
+				NamedNodeMap namedNodeMap=((Node)context).getAttributes();
+				
+				if(namedNodeMap==null)
+				{
+					throw new TemplateRuntimeException("element with no attributes...but tried to access attribute..."+attribute);
+				}
+				
+				context=namedNodeMap.getNamedItem(attribute);
+			}
+			else
+			{
+				throw new TemplateRuntimeException("invalid key...observed list of nodes with parent tag..."+key);
+			}
+		}
+		
+		return getNextHandler(context, position).lookupFromMap(context, key, getMethodCall);
+	}
+	
+	public Object lookupFromList(Object context, String key, int index)
+	{
+		Element element=null;
+		NodeList nodeList=null;
+		String xmlKey=null;
+		String attribute=null;
+
+		Matcher tmpMatcher=ARRAY_ATTR_PATTERN.matcher(key);
+		if(tmpMatcher.find())
+		{
+			xmlKey=key.substring(0, tmpMatcher.start());
+			attribute=key.substring(tmpMatcher.end());
+		}
+		
+		if(context instanceof Node)
+		{
+			element=(Element)context;
+			nodeList=element.getElementsByTagName(xmlKey);
+		}
+		else if(context instanceof NodeList)
+		{
+			nodeList=(NodeList)context;
+		}
+		
+		if(nodeList!=null)
+		{
+			if(index>=nodeList.getLength())
+			{
+				throw new TemplateRuntimeException("Array index out of range...expected..."+index+"\tactual length..."+nodeList.getLength());
+			}
+				
+			context=nodeList.item(index);
+			
+			if(attribute!=null)
+			{
+				NamedNodeMap namedNodeMap=((Node)context).getAttributes();
+				
+				if(namedNodeMap==null)
+				{
+					throw new TemplateRuntimeException("element with no attributes...but tried to access attribute..."+attribute+"...on element.."+xmlKey);
+				}
+				
+				context=namedNodeMap.getNamedItem(attribute);
+			}
+			
+			return context;
+		}
+		
+		return getNextHandler(context, position).lookupFromList(context, key, index);
+	}
+	
+	public Object lookupAsPrimitive(Object context)
+	{
+		if(context instanceof Node)
+		{
+			return ((Node) context).getTextContent();
+		}
+		
+		return getNextHandler(context, position).lookupAsPrimitive(context);
+	}
+	
+	public Object returnFinalResult(Object context, boolean returnArrayType, String key)
+	{
+		if(returnArrayType)
+		{
+			if(context instanceof NodeList)
+			{
+				return new NodeListIterator((NodeList)context);
+			}	
+		}
+
+		if(context instanceof Node)
+		{
+			return ((Node) context).getTextContent();
+		}
+		else if(context instanceof NodeList)
+		{
+			NodeList tmpList=(NodeList)context;
+			
+			if(tmpList.getLength()==1)
+			{
+				context=tmpList.item(0);
+				
+				return ((Node) context).getTextContent();
 			}
 			else
 			{
 				throw new TemplateRuntimeException("expected one node...but observed array of nodes for given key..."+key);
 			}
 		}
-		
-		return null;
+
+		return getNextHandler(context, position).returnFinalResult(context, returnArrayType, key);
 	}
 }

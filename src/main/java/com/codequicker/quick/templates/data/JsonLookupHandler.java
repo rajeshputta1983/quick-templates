@@ -16,85 +16,72 @@ limitations under the License.
 
 package com.codequicker.quick.templates.data;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.codequicker.quick.templates.exceptions.TemplateRuntimeException;
-import com.codequicker.quick.templates.state.EngineContext;
-import com.codequicker.quick.templates.state.VariableNode;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 /*
 * @author Rajesh Putta
 */
-public class JsonLookupHandler implements ILookupHandler {
+public class JsonLookupHandler extends BaseDataLookupHandler {
 	
-	private Pattern arrayNodePattern=Pattern.compile(".+\\[(\\d+)\\]");
+	private int position=-1;
 	
-	public Class<?> getType() {
-		return null;
+	public JsonLookupHandler(int position) {
+		this.position=position;
 	}
 	
-	public Object lookup(String key, VariableNode exprNode, EngineContext context, Object reference,
-			boolean returnArrayType) {
-		
-		JsonElement jsonObject=(reference!=null)?(JsonElement)reference:context.getJsonObject();
-		
-		if(jsonObject==null)
-			throw new TemplateRuntimeException("No Json Payload is set in the EngineContext instance...");
+	public Object lookupFromMap(Object context, String key, boolean getMethodCall)
+	{
+		Class<?> clazz=context.getClass();
 
-		String[] keys=key.split("\\.");
-		
-		boolean isArrayType=false;
-		
-		for(String jsonKey: keys)
+		if(JsonObject.class.isAssignableFrom(clazz))
 		{
-			Matcher matcher=arrayNodePattern.matcher(jsonKey);
-			
-			if(matcher.matches())
-				isArrayType=true;
-			else
-				isArrayType=false;
-
-			if(isArrayType)
-			{
-				int startIndex=jsonKey.indexOf("[");
-				
-				int index=Integer.parseInt(jsonKey.substring(startIndex+1, jsonKey.indexOf("]", startIndex+1)));
-				
-				jsonKey=jsonKey.substring(0, startIndex);
-				
-				jsonObject=jsonObject.getAsJsonObject().get(jsonKey);
-				
-				JsonArray jsonArray=jsonObject.getAsJsonArray();
-				
-				jsonObject=jsonArray.get(index);
-			}
-			else if(jsonObject.isJsonObject())
-			{
-				JsonObject obj=jsonObject.getAsJsonObject();
-				
-				jsonObject=obj.get(jsonKey);
-			}
+			return ((JsonObject)context).getAsJsonObject().get(key);
 		}
 		
+		return getNextHandler(context, position).lookupFromMap(context, key, getMethodCall);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public Object lookupFromList(Object context, String key, int index)
+	{
+		Class clazz=context.getClass();
+		
+		if(JsonArray.class.isAssignableFrom(clazz))
+		{
+			JsonArray jsonArray=((JsonArray)context).getAsJsonArray();
+			
+			return jsonArray.get(index);
+		}
+
+		return getNextHandler(context, position).lookupFromList(context, key, index);
+	}
+	
+	public Object lookupAsPrimitive(Object context)
+	{
+		if(JsonPrimitive.class.isAssignableFrom(context.getClass()))
+		{
+			return ((JsonPrimitive)context).getAsString();
+		}
+		
+		return getNextHandler(context, position).lookupAsPrimitive(context);
+	}
+	
+	public Object returnFinalResult(Object context, boolean returnArrayType, String key)
+	{
 		if(returnArrayType)
 		{
-			if(jsonObject.isJsonArray())
+			if(context instanceof JsonElement && ((JsonElement)context).isJsonArray())
 			{
-				return jsonObject.getAsJsonArray().iterator();
-			}	
-			else
-			{
-				throw new TemplateRuntimeException("json object is not of array type..."+key);
+				return ((JsonElement)context).getAsJsonArray().iterator();
 			}
 		}
 		
-		if(jsonObject.isJsonPrimitive())
-			return jsonObject.getAsString();
+		if(context instanceof JsonElement && ((JsonElement)context).isJsonPrimitive())
+			return ((JsonElement)context).getAsString();
 		
-		return null;
-	}
+		return getNextHandler(context, position).returnFinalResult(context, returnArrayType, key);
+	}	
 }

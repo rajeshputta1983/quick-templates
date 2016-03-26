@@ -127,7 +127,9 @@ public class ExpressionEvaluator {
 			}
 			else if(exprNode.isSingleEntity())
 			{
-				String result=(String)lookupHandler.lookup(exprNode.getLeftOperand(), exprNode.getLeftNode(), context, false);
+				Object resultObj=lookupHandler.lookup(exprNode.getLeftOperand(), exprNode.getLeftNode(), context, false);
+				
+				String result=String.valueOf(resultObj);
 				
 				boolean booleanResult=(result!=null && result.equalsIgnoreCase("true"))?true:false;
 				
