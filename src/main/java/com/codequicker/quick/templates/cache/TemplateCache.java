@@ -15,6 +15,7 @@ limitations under the License.
  */
 package com.codequicker.quick.templates.cache;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ import com.codequicker.quick.templates.state.Node;
 */
 public class TemplateCache {
 
-	private Map<String, Node> preprocessedTemplateCache=new HashMap<String, Node>();
+	private Map<String, Node> preprocessedTemplateCache=Collections.synchronizedMap(new HashMap<String, Node>());
 	
 	public TemplateCache(){
 	}

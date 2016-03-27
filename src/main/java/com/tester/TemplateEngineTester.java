@@ -140,14 +140,12 @@ public class TemplateEngineTester {
 		context.set("someCsv", csvData);
 		
 		
-		
-		
-		long startTime=System.currentTimeMillis();
-		
 		IEngine templateEngine=EngineFactory.getInstance().getEngine(EngineType.TEMPLATES);
 		
 		templateEngine.initialize("/com/tester/template-rules-config.xml");
 		
+		long startTime=System.currentTimeMillis();
+
 		String content=templateEngine.execute(context);
 		
 		long delta=System.currentTimeMillis()-startTime;

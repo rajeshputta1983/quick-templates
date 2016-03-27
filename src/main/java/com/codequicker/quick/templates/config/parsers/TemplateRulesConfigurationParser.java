@@ -15,7 +15,6 @@ limitations under the License.
  */
 package com.codequicker.quick.templates.config.parsers;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -31,12 +30,9 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import com.codequicker.quick.templates.cache.TemplateCache;
 import com.codequicker.quick.templates.exceptions.PreprocessorException;
+import com.codequicker.quick.templates.parallel.ParallelTemplatePreprocessor;
 import com.codequicker.quick.templates.processors.ExpressionPreprocessor;
-import com.codequicker.quick.templates.processors.TemplatePreprocessor;
-import com.codequicker.quick.templates.source.FileSource;
-import com.codequicker.quick.templates.source.ISource;
 import com.codequicker.quick.templates.state.BindingDefinition;
-import com.codequicker.quick.templates.state.Node;
 import com.codequicker.quick.templates.state.RuleDefinition;
 import com.codequicker.quick.templates.utils.StreamUtils;
 import com.codequicker.quick.templates.utils.TemplateUtil;
@@ -56,6 +52,8 @@ public class TemplateRulesConfigurationParser extends DefaultHandler {
 	
 	private ExpressionPreprocessor exprProcessor=new ExpressionPreprocessor();
 	
+	private ParallelTemplatePreprocessor parallelProcessor=ParallelTemplatePreprocessor.getInstance();
+	
 	public TemplateRulesConfigurationParser(String configPath, TemplateCache cache){
 		this.cache=cache;
 		parse(configPath);
@@ -63,6 +61,8 @@ public class TemplateRulesConfigurationParser extends DefaultHandler {
 	
 	public void parse(String configPath)
 	{
+		this.parallelProcessor.setCache(this.cache);
+		
 		InputStream stream=this.getClass().getResourceAsStream(configPath);
 		
 		SAXParserFactory factory=SAXParserFactory.newInstance();
@@ -72,13 +72,19 @@ public class TemplateRulesConfigurationParser extends DefaultHandler {
 			
 			parser.parse(stream, this);
 			
+			this.parallelProcessor.waitForCompletion();
+			
 		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
+			throw new PreprocessorException(e);
 		} catch (SAXException e) {
-			e.printStackTrace();
+			throw new PreprocessorException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
-		}finally{
+			throw new PreprocessorException(e);
+		} catch(PreprocessorException e) {
+			this.parallelProcessor.shutdown();
+			throw e;
+		}
+		finally{
 			StreamUtils.closeStreams(stream, null);
 		}
 	}
@@ -119,16 +125,7 @@ public class TemplateRulesConfigurationParser extends DefaultHandler {
 			
 			this.definitionMap.get(this.bindingId).addRuleDefinition(def);
 			
-			if(!this.cache.contains(templatePath))
-			{
-				ISource source=new FileSource();
-				String content=source.readContent(this.rootDirectoryPath + File.separator+ templatePath);
-				
-				TemplatePreprocessor preprocessor=new TemplatePreprocessor();
-				Node rootNode=preprocessor.preprocess(content);
-				
-				this.cache.set(templatePath, rootNode);
-			}
+			parallelProcessor.submitTemplate(this.rootDirectoryPath, templatePath);
 		}
 	}
 	
