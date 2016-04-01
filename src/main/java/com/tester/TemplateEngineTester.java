@@ -25,6 +25,7 @@ import com.codequicker.quick.templates.core.EngineType;
 import com.codequicker.quick.templates.core.IEngine;
 import com.codequicker.quick.templates.core.EngineFactory;
 import com.codequicker.quick.templates.source.adapters.CsvSourceAdapter;
+import com.codequicker.quick.templates.source.adapters.ExcelSourceAdapter;
 import com.codequicker.quick.templates.source.adapters.ISourceAdapter;
 import com.codequicker.quick.templates.state.EngineContext;
 
@@ -139,6 +140,17 @@ public class TemplateEngineTester {
 		
 		context.set("someCsv", csvData);
 		
+		
+		// excel file as context
+		
+		sourceAdapter=new ExcelSourceAdapter();
+		
+		Object excelData=sourceAdapter.transformContent("C:\\payloads\\test\\sample.xls");
+		
+		context.set("someExcel", excelData);
+		
+		
+		// process template
 		
 		IEngine templateEngine=EngineFactory.getInstance().getEngine(EngineType.TEMPLATES);
 		
