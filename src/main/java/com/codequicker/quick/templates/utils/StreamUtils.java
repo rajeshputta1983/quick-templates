@@ -56,6 +56,11 @@ public class StreamUtils {
 			{
 				// try to load from classpath
 				stream=StreamUtils.class.getResourceAsStream(path);
+				
+				if(stream==null)
+				{
+					stream=Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+				}
 			}
 		}catch (Exception e) {
 			throw new PreprocessorException(e);

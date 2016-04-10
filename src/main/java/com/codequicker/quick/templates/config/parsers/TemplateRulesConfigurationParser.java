@@ -65,6 +65,11 @@ public class TemplateRulesConfigurationParser extends DefaultHandler {
 		
 		InputStream stream=StreamUtils.loadStream(configPath);
 		
+		if(stream==null)
+		{
+			throw new IllegalStateException("Template Engine is not able to load configuration file...@"+configPath);
+		}
+		
 		SAXParserFactory factory=SAXParserFactory.newInstance();
 		
 		try {
