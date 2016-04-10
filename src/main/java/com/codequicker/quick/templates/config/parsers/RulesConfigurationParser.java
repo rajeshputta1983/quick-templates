@@ -51,7 +51,12 @@ public class RulesConfigurationParser extends DefaultHandler {
 	
 	public void parse(String configPath)
 	{
-		InputStream stream=this.getClass().getResourceAsStream(configPath);
+		InputStream stream=StreamUtils.loadStream(configPath);
+		
+		if(stream==null)
+		{
+			throw new IllegalStateException("Rule Engine is not able to rule configuration file...@"+configPath);
+		}
 		
 		SAXParserFactory factory=SAXParserFactory.newInstance();
 		

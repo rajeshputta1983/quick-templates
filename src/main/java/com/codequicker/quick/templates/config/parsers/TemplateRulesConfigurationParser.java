@@ -63,7 +63,7 @@ public class TemplateRulesConfigurationParser extends DefaultHandler {
 	{
 		this.parallelProcessor.setCache(this.cache);
 		
-		InputStream stream=this.getClass().getResourceAsStream(configPath);
+		InputStream stream=StreamUtils.loadStream(configPath);
 		
 		SAXParserFactory factory=SAXParserFactory.newInstance();
 		

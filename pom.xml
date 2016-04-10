@@ -7,6 +7,15 @@
 	<version>1.0</version>
 
 	<name>Quick Templates</name>
+	<description>A simple, light-weight but powerful templating engine/framework for Java/J2ee applications</description>
+	<developers>
+	    <developer>
+	        <name>Rajesh Putta</name>
+	        <email>Rajesh.Putta@codequicker.com</email>
+	        <organization>CodeQuicker</organization>
+	    </developer>
+	    
+	</developers>
 	<url>http://maven.apache.org</url>
 
 	<dependencies>

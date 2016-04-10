@@ -16,16 +16,53 @@ limitations under the License.
 
 package com.codequicker.quick.templates.utils;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URL;
+
+import com.codequicker.quick.templates.exceptions.PreprocessorException;
 
 /*
 * @author Rajesh Putta
 */
 public class StreamUtils {
+	
+	public static InputStream loadStream(String path)
+	{
+		if(TemplateUtil.isNullOrEmpty(path))
+		{
+			throw new IllegalArgumentException("config file path cannot be null or empty...");
+		}
+		
+		InputStream stream=null;
+		
+		try
+		{
+			if(path.startsWith("file://"))
+			{
+				stream=new BufferedInputStream(new FileInputStream(new File(path.substring(7).trim())));
+			}
+			else if(path.startsWith("http://") || path.startsWith("https://"))
+			{
+				stream=new URL(path).openStream();
+			}
+			else
+			{
+				// try to load from classpath
+				stream=StreamUtils.class.getResourceAsStream(path);
+			}
+		}catch (Exception e) {
+			throw new PreprocessorException(e);
+		}
+		
+		return stream;
+	}
 	
 	public static void closeStreams(InputStream iStream, OutputStream oStream)
 	{
