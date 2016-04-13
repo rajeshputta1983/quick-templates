@@ -75,9 +75,7 @@ public class ExpressionHierarchyPreprocessor {
 	{
 		this.recycle();
 		
-//		System.out.println(expr);
-		
-		if(!expr.startsWith("#"))
+		if(!expr.startsWith("$"))
 		{
 			return null;
 		}
@@ -216,7 +214,7 @@ public class ExpressionHierarchyPreprocessor {
 		
 		if(matcher.matches())
 		{
-			node.setType(variableToken.startsWith("#")?VariableType.ROOT_VARIABLE:VariableType.VARIABLE);
+			node.setType(variableToken.startsWith("$")?VariableType.ROOT_VARIABLE:VariableType.VARIABLE);
 			node.setSubType(VariableType.ARRAY);
 		}
 		else
@@ -261,7 +259,7 @@ public class ExpressionHierarchyPreprocessor {
 				}
 				catch(NumberFormatException nfe)
 				{
-					node.setType(variableToken.startsWith("#")?VariableType.ROOT_VARIABLE:VariableType.VARIABLE);				
+					node.setType(variableToken.startsWith("$")?VariableType.ROOT_VARIABLE:VariableType.VARIABLE);				
 				}
 			}
 		}

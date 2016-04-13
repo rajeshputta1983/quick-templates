@@ -1,60 +1,60 @@
-#if(#company.code.substring(0, 2)=='xy' && #company.code=='xyz' && #customObject.getNames()[0]=='Quick')
+#if($company.code.substring(0, 2)=='xy' && $company.code=='xyz' && $customObject.getNames()[0]=='Quick')
 
 Hello This is sample template text - Para1
 
-Hi #{#someCsv[0].column1}, #{#someCsv[0].column2}
+Hi #{$someCsv[0].column1}, #{$someCsv[0].column2}
 
-#for(record in #someExcel.sheet1)
-	#{#record.column1}
+#for(record in $someExcel.sheet1)
+	#{$record.column1}
 #end
 	
-	#switch(#company.name)
-		#case(mycompany): #{#someXml.inventory.book[0].title}
-					#{#someXml.inventory.book[1].title}
-					#{#someXml.inventory.book[0]@year}/#{#someXml.inventory.book[2]@year}
+	#switch($company.name)
+		#case(mycompany): #{$someXml.inventory.book[0].title}
+					#{$someXml.inventory.book[1].title}
+					#{$someXml.inventory.book[0]@year}/#{$someXml.inventory.book[2]@year}
 
-					#for(book in #someXml.inventory.book)
-						Author #{#book$index} / #{#book.author@alias}
+					#for(book in $someXml.inventory.book)
+						Author #{$book$index} / #{$book.author@alias}
 					#end
 		#end
-		#case(mycompany1): #{#someJson.person.address[1].type}
-					#{#someJson.person.address[1].location.substring(0,2)}
-					#{#someJson.person.address[0].location}
-					#{#someJson.person.address[0].type}
+		#case(mycompany1): #{$someJson.person.address[1].type}
+					#{$someJson.person.address[1].location.substring(0,2)}
+					#{$someJson.person.address[0].location}
+					#{$someJson.person.address[0].type}
 		#end
 		#default:
 				default case got executed
 		#end		
 	#end
 	
-#if(#company.code=='xyz' && #data=='123')	
+#if($company.code=='xyz' && $data=='123')	
 	Para 21
-	#for(book in #someXml.inventory.book)
-		Author #{#book$index} - #{#book.author@alias}
+	#for(book in $someXml.inventory.book)
+		Author #{$book$index} - #{$book.author@alias}
 	#end	
-#else if(#data=='345')
+#else if($data=='345')
 	Para 22
-#else if(#data!='123')
+#else if($data!='123')
 	Para 23
 #else
 	Para 24
 #end	
 
-#if(#someXml.inventory.book[0]@year.startsWith("20") && #dummy==null && #status && #someJson.person.name~='Rajesh' && #myname=='rajesh' && #company.code=='xyz' || #company.code=='abc')	
+#if($someXml.inventory.book[0]@year.startsWith("20") && $dummy==null && $status && $someJson.person.name~='Rajesh' && $myname=='rajesh' && $company.code=='xyz' || $company.code=='abc')	
 
 Para 32
 	
-	#for(addr1 in #someJson.person.address)
-		hello #{#addr1.type} - #{#addr1.location} !! 
-		#{#addr1$index}
-		#for(addr2 in #employee.address.subList(1,2))
-			#{#addr2.type}/#{#addr2.location}
-			#{#addr2$index}
+	#for(addr1 in $someJson.person.address)
+		hello #{$addr1.type} - #{$addr1.location} !! 
+		#{$addr1$index}
+		#for(addr2 in $employee.address.subList(1,2))
+			#{$addr2.type}/#{$addr2.location}
+			#{$addr2$index}
 		#end
 	#end
 Para 4
 	
-	#if(#data<='123')
+	#if($data<='123')
 		Para 5
 	#end
 	Para 6

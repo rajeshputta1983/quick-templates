@@ -20,5 +20,6 @@ package com.codequicker.quick.templates.source;
 * @author Rajesh Putta
 */
 public interface ISource {
-	public String readContent(String path);
+	public String readContentAsText(String path);
+	public byte[] readContentAsBinary(String path);
 }

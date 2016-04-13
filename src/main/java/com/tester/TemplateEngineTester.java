@@ -21,9 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.codequicker.quick.templates.core.EngineFactory;
+import com.codequicker.quick.templates.core.EngineResponse;
 import com.codequicker.quick.templates.core.EngineType;
 import com.codequicker.quick.templates.core.IEngine;
-import com.codequicker.quick.templates.core.EngineFactory;
 import com.codequicker.quick.templates.source.adapters.CsvSourceAdapter;
 import com.codequicker.quick.templates.source.adapters.ExcelSourceAdapter;
 import com.codequicker.quick.templates.source.adapters.ISourceAdapter;
@@ -158,11 +159,15 @@ public class TemplateEngineTester {
 		
 		long startTime=System.currentTimeMillis();
 
-		String content=templateEngine.execute(context);
+		EngineResponse response=templateEngine.execute(context);
+		
+		if(!response.isBinary())
+		{
+			String content = String.valueOf(response.getContent());
+			System.out.println(content);
+		}
 		
 		long delta=System.currentTimeMillis()-startTime;
-		
-		System.out.println(content);
 		
 		System.out.println("Time Taken (ms) : "+delta);
 		

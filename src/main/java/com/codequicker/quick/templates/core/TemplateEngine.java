@@ -16,6 +16,7 @@ limitations under the License.
 
 package com.codequicker.quick.templates.core;
 
+import java.io.File;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +33,7 @@ import com.codequicker.quick.templates.source.UrlSource;
 import com.codequicker.quick.templates.state.BindingDefinition;
 import com.codequicker.quick.templates.state.EngineContext;
 import com.codequicker.quick.templates.state.ExpressionNode;
+import com.codequicker.quick.templates.state.MimeType;
 import com.codequicker.quick.templates.state.Node;
 import com.codequicker.quick.templates.state.RuleDefinition;
 import com.codequicker.quick.templates.utils.TemplateUtil;
@@ -68,7 +70,7 @@ public class TemplateEngine implements IEngine {
 		LOGGER.log(Level.INFO, "Template configuration is initialized successfully...");		
 	}
 	
-	public String execute(EngineContext context)
+	public EngineResponse execute(EngineContext context)
 	{
 		if(this.templateRulesConfiguration==null)
 		{
@@ -101,11 +103,36 @@ public class TemplateEngine implements IEngine {
 			throw new TemplateRuntimeException("didn't match with any rule configured..."+context.get("bindingId"));
 		
 		
+		EngineResponse response=new EngineResponse();
 		
-		return templateEvaluator.evaluate(filePath, context, cache);
+		
+		String extn=TemplateUtil.extractFileExtension(filePath);
+		
+		if(!extn.equalsIgnoreCase("qt"))
+		{
+			String completePath=this.templateRulesConfiguration.getBasePath()+File.separator+filePath;
+			
+			ISource source = new FileSource();
+			
+			byte[] content=source.readContentAsBinary(completePath);
+			
+			response.setBinary(true);
+			
+			response.setContent(content);
+			
+			response.setMimeType(MimeType.typeOf(extn));
+			
+			return response;
+		}
+		
+		String content=templateEvaluator.evaluate(filePath, context, cache);
+		response.setContent(content);
+		response.setMimeType(MimeType.TEXT_PLAIN);
+		
+		return response;
 	}
 
-	public Object executeSingleEntity(String entity, EngineContext context) {
+	public EngineResponse executeSingleEntity(String entity, EngineContext context) {
 		
 		if(TemplateUtil.isNullOrEmpty(entity))
 		{
@@ -123,11 +150,18 @@ public class TemplateEngine implements IEngine {
 			source=new FileSource();
 		}
 		
-		String content=source.readContent(entity);
+		String content=source.readContentAsText(entity);
 		
 		TemplatePreprocessor preprocessor=new TemplatePreprocessor();
 		Node rootNode=preprocessor.preprocess(content);
 		
-		return templateEvaluator.evaluate(rootNode, context);
+		content=templateEvaluator.evaluate(rootNode, context);
+		
+		EngineResponse response=new EngineResponse();
+		
+		response.setContent(content);
+		response.setMimeType(MimeType.TEXT_PLAIN);
+		
+		return response;
 	}
 }

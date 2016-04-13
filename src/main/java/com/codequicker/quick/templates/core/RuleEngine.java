@@ -61,7 +61,7 @@ public class RuleEngine implements IEngine {
 		LOGGER.log(Level.INFO, "Rule configuration is initialized successfully...");
 	}
 	
-	public String execute(EngineContext context)
+	public EngineResponse execute(EngineContext context)
 	{
 		if(this.rulesConfigurationParser==null)
 		{

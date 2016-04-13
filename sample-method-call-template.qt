@@ -1,0 +1,3 @@
+This is to demonstrate method invocation from quick template files
+
+#{$company.size()}

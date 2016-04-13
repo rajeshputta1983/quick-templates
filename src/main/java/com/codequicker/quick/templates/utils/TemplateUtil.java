@@ -34,6 +34,18 @@ public class TemplateUtil {
 		return (str==null || str.trim().equals(""));
 	}
 	
+	public static String extractFileExtension(String filePath)
+	{
+		int index=filePath.lastIndexOf(".");
+		
+		if(index==-1)
+		{
+			throw new IllegalArgumentException("no extension for file path..."+filePath);
+		}
+		
+		return filePath.substring(index+1);
+	}
+	
 	public static int scanThroughForTargetChar(String expr, int index, char target)
 	{
 		int length=expr.length();

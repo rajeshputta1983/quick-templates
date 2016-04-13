@@ -28,7 +28,7 @@ public class ContextProcessingHelper {
 	
 	public Object lookup(String key, VariableNode exprNode, EngineContext context, boolean returnArrayType)
 	{
-		if(!key.startsWith("#"))
+		if(!key.startsWith("$"))
 		{
 			return key;
 		}

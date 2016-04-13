@@ -16,7 +16,9 @@ limitations under the License.
 
 package com.codequicker.quick.templates.source;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,7 +32,7 @@ import com.codequicker.quick.templates.utils.StreamUtils;
 */
 public class FileSource implements ISource {
 	
-	public String readContent(String filePath)
+	public String readContentAsText(String filePath)
 	{
 		BufferedReader reader=null;
 		
@@ -59,5 +61,37 @@ public class FileSource implements ISource {
 		}
 		
 		return "";
+	}
+
+	public byte[] readContentAsBinary(String filePath) {
+		BufferedInputStream bufferedStream=null;
+		
+		try {
+			bufferedStream=new BufferedInputStream(new FileInputStream(filePath));
+			
+			byte[] byteBuffer=new byte[4096];
+			
+			int length=-1;
+			
+			ByteArrayOutputStream baos=new ByteArrayOutputStream();
+			
+			while((length=bufferedStream.read(byteBuffer))>-1)
+			{
+				baos.write(byteBuffer, 0, length);
+			}
+			
+			return baos.toByteArray();
+			
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally{
+			StreamUtils.closeStreams(bufferedStream, null);
+		}
+		
+		return null;
 	}
 }

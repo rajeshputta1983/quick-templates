@@ -121,16 +121,14 @@ public class TemplateRulesConfigurationParser extends DefaultHandler {
 				throw new PreprocessorException("template path cannot be null or empty...");
 			}
 			
-			if(!templatePath.endsWith(".qt"))
-			{
-				throw new PreprocessorException("template path should end with .qt extension...");
-			}
-			
 			def.setPayloadTemplatePath(templatePath);
 			
 			this.definitionMap.get(this.bindingId).addRuleDefinition(def);
-			
-			parallelProcessor.submitTemplate(this.rootDirectoryPath, templatePath);
+
+			if(templatePath.endsWith(".qt"))
+			{
+				parallelProcessor.submitTemplate(this.rootDirectoryPath, templatePath);
+			}
 		}
 	}
 	

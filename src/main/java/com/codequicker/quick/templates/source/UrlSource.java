@@ -16,7 +16,9 @@ limitations under the License.
 
 package com.codequicker.quick.templates.source;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +33,7 @@ import com.codequicker.quick.templates.utils.StreamUtils;
 */
 public class UrlSource implements ISource {
 	
-	public String readContent(String url)
+	public String readContentAsText(String url)
 	{
 		InputStream stream=null;
 		BufferedReader reader=null;
@@ -67,5 +69,40 @@ public class UrlSource implements ISource {
 		}
 		
 		return "";
+	}
+
+	public byte[] readContentAsBinary(String url) {
+		BufferedInputStream bufferedStream=null;
+		
+		try {
+			
+			URL urlObj=new URL(url);
+			
+			bufferedStream=new BufferedInputStream(urlObj.openStream());
+			
+			byte[] byteBuffer=new byte[4096];
+			
+			int length=-1;
+			
+			ByteArrayOutputStream baos=new ByteArrayOutputStream();
+			
+			while((length=bufferedStream.read(byteBuffer))>-1)
+			{
+				baos.write(byteBuffer, 0, length);
+			}
+			
+			return baos.toByteArray();
+			
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally{
+			StreamUtils.closeStreams(bufferedStream, null);
+		}
+		
+		return null;
 	}
 }

@@ -78,7 +78,7 @@ public class ParallelTemplatePreprocessor {
 
 						try {
 							ISource source=new FileSource();
-							String content=source.readContent(rootDirPath+File.separator+templatePath);
+							String content=source.readContentAsText(rootDirPath+File.separator+templatePath);
 							
 							TemplatePreprocessor preprocessor=new TemplatePreprocessor();
 							Node rootNode=preprocessor.preprocess(content);
